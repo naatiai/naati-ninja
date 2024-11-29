@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_PRISMA_URL")
+}
+
+model Subscriptions {
+  id              String    @id @default(nanoid(7))
+  user_id         String
+  mocks_available Int
+  mocks_used      Int
+  expires_on      DateTime? @db.Timestamp(6)
+  created_on      DateTime  @default(now()) @db.Timestamp(6)
+
+  @@index([id])
+  @@map("subscriptions")
+}
+
+model Mocks {
+  id            String          @id @default(nanoid(7))
+  name          String
+  description   String
+  time_duration Int
+  no_of_qa      Int
+  language      String          @default("Hindi")
+  created_on    DateTime        @default(now()) @db.Timestamp(6)
+  MockQuestions MockQuestions[]
+  MockAnswers   MockAnswers[]
+  UserMocks     UserMocks[]
+
+  @@index([id])
+  @@map("mocks")
+}
+
+model MockQuestions {
+  id              String        @id @default(nanoid(7))
+  mock_id         String
+  audio_file_url  String
+  order           Int           @default(1)
+  transcript      String
+  language        String        @default("English")
+  answer_language String        @default("English")
+  created_on      DateTime      @default(now()) @db.Timestamp(6)
+  mock            Mocks         @relation(fields: [mock_id], references: [id])
+  MockAnswers     MockAnswers[]
+
+  @@index([id])
+  @@map("mock_questions")
+}
+
+model UserMocks {
+  id               String        @id @default(nanoid(7))
+  mock_id          String
+  user_id          String
+  attempts_allowed Int           @default(1)
+  attempts         Int           @default(0)
+  total_score      Int?
+  passed           Boolean?
+  expired          Boolean       @default(false)
+  created_on       DateTime      @default(now()) @db.Timestamp(6)
+  mock             Mocks         @relation(fields: [mock_id], references: [id])
+  MockAnswers      MockAnswers[]
+
+  @@index([id])
+  @@map("user_mocks")
+}
+
+model MockAnswers {
+  id               String        @id @default(nanoid(7))
+  mock_question_id String
+  user_mock_id     String
+  user_id          String
+  audio_file_url   String
+  transcript       String?
+  score            Int?
+  max_score        Int?          @default(5)
+  is_correct       Boolean?
+  expires_on       DateTime?     @db.Timestamp(6)
+  created_on       DateTime      @default(now()) @db.Timestamp(6)
+  userMocks        UserMocks     @relation(fields: [user_mock_id], references: [id])
+  mockQuestions    MockQuestions @relation(fields: [mock_question_id], references: [id])
+  Mocks            Mocks?        @relation(fields: [mock_id], references: [id])
+  mock_id          String?
+
+  @@index([id])
+  @@map("mock_answers")
+}

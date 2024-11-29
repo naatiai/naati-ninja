@@ -1,0 +1,362 @@
+'use client';
+import { useEffect, useState, useRef } from 'react';
+import TestInstructions from './test-instructions';
+import { saveRecordingToStorage } from './recording-helpers';
+import { useRouter } from 'next/navigation';
+
+interface TestingClientProps {
+  mockId: string;
+  userMockId: string;
+}
+
+const TestingClient: React.FC<TestingClientProps> = ({
+  mockId,
+  userMockId,
+}) => {
+  const [showInstructions, setShowInstructions] = useState(true);
+  const [mockDetails, setMockDetails] = useState<any>(null);
+  const [questionUrl, setQuestionUrl] = useState<string | null>(null);
+  const [quesId, setQuesId] = useState<string | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [questionNumber, setQuestionNumber] = useState(1);
+  const [isFetchingQuestion, setIsFetchingQuestion] = useState(false);
+  const [audioPlaying, setAudioPlaying] = useState(false);
+  const [timer, setTimer] = useState(0);
+  const [isTestStarted, setIsTestStarted] = useState(false);
+  const [isTestComplete, setIsTestComplete] = useState(false);
+  const [isUploading, setIsUploading] = useState(false); // Added uploading state
+  const [isSavingAnswer, setIsSavingAnswer] = useState(false); // Added saving answer state
+  const [userErrors, setUserErrors] = useState<string[]>([]); // State to store errors
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null); // For tracking audio element
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (!showInstructions && !isTestComplete) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [showInstructions, isTestComplete]);
+
+  const fetchMockDetails = async () => {
+    try {
+      console.log('Fetching mock details...');
+      const res = await fetch('/api/mocks/get_mock_from_id', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mockId }),
+      });
+      const data = await res.json();
+      if (data && data.length > 0) {
+        console.log('Mock details fetched:', data[0]);
+        setMockDetails(data[0]);
+      }
+    } catch (error) {
+      setUserErrors((prev) => [
+        ...prev,
+        'Error fetching mock details: ' + error.message,
+      ]);
+    }
+  };
+
+  const startTest = async () => {
+    try {
+      console.log('Starting the test...');
+      const res = await fetch('/api/mocks/activate_mock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mockId, userMockId }),
+      });
+      if (res.status !== 201) {
+        throw new Error('Failed to create user mock');
+      }
+      if (mockId) {
+        fetchMockDetails();
+      }
+      setShowInstructions(false);
+      fetchNextQuestion(true); // True indicates first time fetching question
+    } catch (error) {
+      setUserErrors((prev) => [
+        ...prev,
+        'Error starting test: ' + error.message,
+      ]);
+    }
+  };
+
+  const debounceFetchNextQuestion = async () => {
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    debounceTimeoutRef.current = setTimeout(() => {
+      fetchNextQuestion(false); // False for normal fetch, not first-time
+    }, 500); // Set debounce delay (500ms)
+  };
+
+  const fetchNextQuestion = async (isFirstTime: boolean) => {
+    if (isFetchingQuestion || audioPlaying) return;
+
+    try {
+      setIsFetchingQuestion(true);
+      console.log(`Fetching question ${questionNumber}...`);
+      const questionRes = await fetch('/api/mocks/get_question', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mockId, questionNumber }),
+      });
+      const questionData = await questionRes.json();
+      setQuesId(questionData.id);
+      setQuestionUrl(questionData.audio_file_url); // Correctly setting the audio URL
+      setIsFetchingQuestion(false);
+
+      if (questionData.audio_file_url) {
+        if (isFirstTime) {
+          console.log('First question, starting test...', questionData);
+          setIsTestStarted(true); // Ensure test starts only once
+        }
+
+        // Prevent overlapping audio playback
+        setTimeout(() => {
+          if (audioRef.current) {
+            console.log('Stopping previous audio...');
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+          }
+        }, 3000);
+
+        const beepAudio = new Audio('/audio/beep.wav');
+        beepAudio.play();
+        console.log('Playing beep sound...');
+
+        beepAudio.onended = () => {
+          console.log('Beep sound ended, waiting 2 seconds...');
+          setTimeout(() => {
+            const questionAudio = new Audio(questionData.audio_file_url);
+            audioRef.current = questionAudio;
+
+            questionAudio.onerror = (e) => {
+              console.error('Audio loading error:', e);
+              setUserErrors((prev) => [
+                ...prev,
+                'Audio loading error: ' + e.message,
+              ]);
+            };
+
+            setAudioPlaying(true);
+            console.log('Playing question audio...');
+            questionAudio.play().catch((error) => {
+              console.error('Audio playback error:', error);
+              setUserErrors((prev) => [
+                ...prev,
+                'Audio playback error: ' + error.message,
+              ]);
+            });
+
+            questionAudio.onended = () => {
+              console.log('Audio finished playing, waiting 5 seconds...');
+              setTimeout(() => startRecording(), 5000);
+            };
+          }, 2000); // 2-second delay before playing question audio
+        };
+      }
+    } catch (error) {
+      setUserErrors((prev) => [
+        ...prev,
+        'Error fetching next question: ' + error.message,
+      ]);
+    }
+  };
+
+  const startRecording = () => {
+    setIsRecording(true);
+    console.log('Recording started...');
+    const beepAudio = new Audio('/audio/beep.wav');
+    beepAudio.play();
+
+    setTimeout(() => {
+      console.log('Recording ended...');
+      setIsRecording(false);
+      handleRecordingEnd();
+    }, 5000); // Stop recording after 30 seconds -> TODO: Update to 30s
+  };
+
+  const handleRecordingEnd = async () => {
+    const recordingBlob = new Blob(
+      [
+        /* recording data */
+      ],
+      { type: 'audio/webm; codecs=opus' },
+    );
+    console.log('Saving recording...');
+    setIsUploading(true); // Set uploading state to true
+
+    try {
+      const recordingUrl = await saveRecordingToStorage(
+        mockId,
+        questionNumber,
+        recordingBlob,
+      );
+      setIsUploading(false); // Set uploading state to false
+      await writeAnswerToDB(recordingUrl);
+    } catch (error) {
+      setIsUploading(false); // Ensure uploading state is reset
+      setUserErrors((prev) => [
+        ...prev,
+        'Error during upload: ' + error.message,
+      ]);
+    }
+    await proceedToNextQuestion();
+  };
+
+  const writeAnswerToDB = async (recordingUrl: string) => {
+    setIsSavingAnswer(true); // Set saving answer state to true
+    try {
+      console.log('Writing answer to DB...');
+      const res = await fetch('/api/mocks/write_answer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mock_question_id: quesId,
+          audio_file_url: recordingUrl,
+          userMockId: userMockId,
+        }),
+      });
+      setIsSavingAnswer(false); // Reset saving answer state
+
+      if (res.status === 202) {
+        console.log('Test completed');
+        setIsTestComplete(true);
+        return;
+      }
+      if (res.status === 200) {
+        proceedToNextQuestion();
+      } else {
+        throw new Error('Failed to save answer');
+      }
+    } catch (error) {
+      setIsSavingAnswer(false); // Reset saving answer state
+      setUserErrors((prev) => [
+        ...prev,
+        'Error saving answer: ' + error.message,
+      ]);
+    }
+  };
+
+  const proceedToNextQuestion = () => {
+    setQuestionNumber((prev) => prev + 1);
+    console.log('Proceeding to next question...');
+    debounceFetchNextQuestion(); // Call with debounce to avoid re-fetching too fast
+  };
+
+  const handleProceedToNextStep = () => {
+    setShowInstructions(false);
+  };
+
+  // Clear errors on button press or any API call that updates state
+  const clearErrors = () => setUserErrors([]);
+
+  return (
+    <div className="flex-grow max-w-7xl mx-auto">
+      {userErrors.length > 0 && (
+        <div className="p-4 border-2 bg-white text-center shadow-lg rounded-lg overflow-hidden relative">
+          <div className="text-1xl font-normal text-red-500 bg-red-100 p-4 mb-4">
+            <ul>
+              {userErrors.map((error, index) => (
+                <li key={index}>{error}</li>
+              ))}
+            </ul>
+            <button onClick={clearErrors} className="text-blue-500">
+              Clear Errors
+            </button>
+          </div>
+        </div>
+      )}
+      {showInstructions ? (
+        <TestInstructions proceedToNextStep={handleProceedToNextStep} />
+      ) : (
+        <>
+          {!mockDetails ? (
+            <div className="p-8 border-2 bg-white text-center shadow-lg rounded-lg overflow-hidden relative">
+              <h2 className="text-center mt-4 text-3xl sm:text-[40px] font-semibold leading-[72px] tracking-[-0.6px] sm:tracking-[-1.2px] bg-clip-text pb-3 sm:pb-[30px]">
+                Get Ready
+              </h2>
+              <p className="text-gray-700 font-normal text-2xl">
+                Your test is about to start. Click the button below when you're
+                ready.
+              </p>
+              <p className="text-gray-700 font-normal text-2xl">
+                Please ensure your browser has permission to access your
+                microphone.
+              </p>
+              <button
+                onClick={startTest}
+                className="mt-8 w-full py-2 bg-gradient-to-r from-green-400 to-blue-400 text-white rounded-lg shadow-lg hover:bg-gradient-to-r hover:from-blue-500 hover:to-green-500 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/50"
+              >
+                Start Test
+              </button>
+            </div>
+          ) : isTestStarted && !isTestComplete ? (
+            <div className="p-4 border-2 bg-white text-center shadow-lg rounded-lg overflow-hidden relative">
+              <h2 className="text-center mt-4 text-3xl sm:text-[40px] font-semibold leading-[72px] tracking-[-0.6px] sm:tracking-[-1.2px] bg-clip-text pb-3 sm:pb-[30px]">
+                {mockDetails.name}
+              </h2>
+              <p className="text-gray-700 font-normal text-2xl">
+                Segment {questionNumber}
+              </p>
+              <p className="text-gray-700 font-normal text-2xl">
+                Language: {mockDetails.language}
+              </p>
+              {isFetchingQuestion ? (
+                <p>Loading next question...</p>
+              ) : (
+                <>
+                  {timer > 0 && (
+                    <div className="timer">
+                      <p>Time Remaining: {timer}s</p>
+                    </div>
+                  )}
+                  {/* <audio src={questionUrl} autoPlay /> */}
+                  <button
+                    className={`w-full px-2 py-2 mt-4 text-white rounded-md transition-all duration-200 ${
+                      isRecording
+                        ? 'bg-red-500'
+                        : 'bg-gray-400 hover:bg-blue-700 cursor-not-allowed'
+                    }`}
+                    disabled={isRecording || isUploading || isSavingAnswer}
+                    onClick={isRecording ? handleRecordingEnd : startRecording}
+                  >
+                    {isRecording
+                      ? 'Recording'
+                      : audioPlaying
+                      ? 'Playing Audio'
+                      : 'Waiting'}
+                  </button>
+                </>
+              )}
+            </div>
+          ) : (
+            <div>
+              <p>Your test is complete!</p>
+              <p className="font-normal">
+                Your test results will be prepared in the next 2-4 hours. You
+                will be notified by email about accessing your results.
+              </p>
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="w-full px-2 py-2 mt-4 text-white rounded-md hover:bg-blue-700 bg-gray-400 cursor-not-allowed'"
+              >
+                Back to Home
+              </button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+};
+export default TestingClient;
