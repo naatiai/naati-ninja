@@ -9,7 +9,7 @@ const Footer = () => {
         <div className="flex items-center gap-[22px] sm:gap-[39px]">
           <div className="flex space-x-4 pb-4 sm:pb-0">
             <Link
-              href="https://s32.com.au/terms/"
+              href="https://naatininja.com/terms/"
               className="group"
               aria-label="Terms"
               target="_blank"
@@ -17,7 +17,7 @@ const Footer = () => {
               Terms
             </Link>
             <Link
-              href="https://s32.com.au/privacy/"
+              href="https://naatininja.com/privacy/"
               className="group"
               aria-label="Privacy"
               target="_blank"

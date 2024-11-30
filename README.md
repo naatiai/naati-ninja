@@ -1,6 +1,5 @@
 # NAATI Ninja
 
-
 ## DB:
 
 ```bash
@@ -19,3 +18,10 @@ npm run build
 npm run dev
 ```
 
+### Reset Env:
+
+Get Seed Folder a level up in Dir
+
+```bash
+bash redo.sh
+```

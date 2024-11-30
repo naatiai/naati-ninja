@@ -106,7 +106,7 @@ function Logo() {
     // </svg>
     <img
       src="/logo.png"
-      alt="S32 Logo"
+      alt="Naati Ninja Logo"
       width={51}
       height={51}
       style={{ fill: '#F04438' }} // Set height, width, and fill color as needed
