@@ -6,13 +6,10 @@ Yellow: f7941e
 Primary: 099f9e
 
 YT:
-https://www.youtube.com/@S32-AI
+https://www.youtube.com/
 
-X:
-https://x.com/S32_AI
-
-Linkedin:
-https://www.linkedin.com/company/92475660
+FB:
+https://facebook.com
 
 ---
 
@@ -34,6 +31,16 @@ APIs:
 
 Display Mock Data + Score on Results page
 Audio Waveform
-Subscription Webhook
+[to-test] Subscription Webhook
+[done] stripe links
+[TODO] Clean Errors on Test page
+[TODO] - recording-helpers -> Move Supabase creds to API
 
 AI Grading
+
+[stripe-text]
+Thank you for your payment. Please allow a few minutes for the transaction to reflect in your account. For any issues or assistance, feel free to reach out to us at support@naatininja.com
+
+---
+
+[idea] - Grading to include bars eg. Word count, accuracy, quality of language, delivery, feedback

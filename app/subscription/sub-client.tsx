@@ -25,11 +25,11 @@ export default function SubClient() {
   };
 
   const priceOutput: any = {
-    0: ['$', '5', ''],
-    1: ['$', '20', ''],
-    2: ['$', '40', ''],
-    3: ['$', '50', ''],
-    4: ['$', '101', ''],
+    0: ['$', '5', 'https://buy.stripe.com/cN29B6bO1cOWfxm9AA'],
+    1: ['$', '20', 'https://buy.stripe.com/5kAdRm6tHcOW98Y3cd'],
+    2: ['$', '40', 'https://buy.stripe.com/3cs14A05j7uCbh6002'],
+    3: ['$', '50', 'https://buy.stripe.com/6oE5kQ05j9CKbh6003'],
+    4: ['$', '101', 'https://buy.stripe.com/5kAbJe5pDeX4dpe9AE'],
   };
 
   useEffect(() => {
@@ -104,7 +104,9 @@ export default function SubClient() {
             </ul>
             <button
               className="inline-flex items-center px-4 py-2 font-semibold leading-6 text-lg shadow rounded-md hover:border-1 hover:rounded-lg bg-gradient-to-r from-[#099f9e] to-[#f7941e] hover:from-white hover:to-white hover:text-[#099f9e] transition ease-in-out duration-150 cursor-pointer text-white"
-              onClick={() => router.push(payLink)}
+              onClick={() =>
+                window.open(payLink, '_blank', 'noopener,noreferrer')
+              }
             >
               Pay Now
             </button>

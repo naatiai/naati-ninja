@@ -138,8 +138,8 @@ export default function ResultsClient({
                 <th className="py-2 px-4 border-b border-gray-200">
                   Your Answer
                 </th>
-                <th className="py-2 px-4 border-b border-gray-200">Correct</th>
                 <th className="py-2 px-4 border-b border-gray-200">Score</th>
+                <th className="py-2 px-4 border-b border-gray-200">Correct</th>
               </tr>
             </thead>
             <tbody>

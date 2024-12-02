@@ -100,6 +100,20 @@ const Tooltips: React.FC = () => {
                 </p>
               </div>
             )}
+            {tooltip === 3 && !sub && (
+              <div className="z-20 m-4 w-64 absolute transition duration-150 ease-in-out left-1/2 transform -translate-x-1/2 shadow-lg bg-gray-800 p-4 rounded">
+                <svg
+                  className="absolute top-0 left-1/2 transform -translate-x-1/2 -mt-2"
+                  width="16px"
+                  height="9px"
+                >
+                  <polygon points="8,0 16,9 0,9" fill="#2D3748" />
+                </svg>
+                <h2 className="text-white text-center mt-2 mb-2">
+                  No Active Subscription
+                </h2>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -18,6 +18,10 @@ export async function GET(req: Request) {
       },
     });
 
+    // return NextResponse.json(
+    //   { subscription: subscription },
+    //   { status: 200 },
+    // );
     // Check if subscription exists
     if (!subscription) {
       return NextResponse.json(

@@ -5,130 +5,162 @@ import { sendEmail } from '../../utils/zoho/mail';
 
 export async function POST(req: NextRequest) {
   const now = new Date().toISOString();
+
   try {
     const body = await req.json();
-    // const sig = req.headers.get('stripe-signature');
-    // if (!sig) {
-    //   console.error('Missing Stripe signature');
-    //   return NextResponse.json(
-    //     { error: 'Missing Stripe signature' },
-    //     { status: 403 },
-    //   );
-    // }
+    const sig = req.headers.get('stripe-signature');
 
-    // Only proceed if event is 'charge.updated'
-    // if (body.type !== 'charge.updated') {
-    //   console.log('Event not recognised:', body.type);
-    //   return NextResponse.json({}, { status: 202 });
-    // }
+    if (!sig) {
+      const errorMessage = 'Missing Stripe signature';
+      console.error(errorMessage);
+      await sendEmail(
+        `[ALERT] ${errorMessage} at ${now}`,
+        `Full Request Body: ${JSON.stringify(body)}`,
+      );
+      return NextResponse.json({ error: errorMessage }, { status: 403 });
+    }
 
-    // // Handle successful charge event
-    // if (body.data?.object?.status === 'succeeded') {
-    //   console.log('Event Captured:', body.type);
+    // Handle only 'charge.updated' events
+    if (body.type !== 'charge.updated') {
+      console.log('Unrecognized event type:', body.type);
+      return NextResponse.json({}, { status: 202 });
+    }
 
-    //   const outcome = body.data.object.outcome?.network_status;
-    //   if (outcome !== 'approved_by_network') {
-    //     console.log('Payment not approved by network:', outcome);
-    //     await sendEmail(
-    //       `Payment Status was not Successful at ${now}`,
-    //       `Full Stripe Request Body: ${JSON.stringify(body)}`,
-    //     );
-    //     return NextResponse.json({}, { status: 400 });
-    //   }
+    const charge = body.data?.object;
+    const status = charge?.status;
 
-    //   const billing = body.data.object.billing_details;
-    //   const userEmail = billing?.email;
+    if (status !== 'succeeded') {
+      const errorMessage = `Charge status not successful: ${status}`;
+      console.log(errorMessage);
+      await sendEmail(
+        `[ALERT] ${errorMessage} at ${now}`,
+        `Full Request Body: ${JSON.stringify(body)}`,
+      );
+      return NextResponse.json({}, { status: 400 });
+    }
 
-    //   // Verify user with Clerk
-    //   let userId;
-    //   try {
-    //     const clerkClient = createClerkClient({
-    //       secretKey: process.env.CLERK_SECRET_KEY,
-    //     });
-    //     const clerkUser = await clerkClient.users.getUserList({
-    //       emailAddress: [userEmail],
-    //     });
-    //     if (!clerkUser || clerkUser.length === 0) {
-    //       console.error('User not found for email:', userEmail);
-    //       return NextResponse.json(
-    //         { error: 'User not found' },
-    //         { status: 404 },
-    //       );
-    //     }
-    //     userId = clerkUser[0].id;
-    //   } catch (clerkError) {
-    //     console.error('Error fetching user from Clerk:', clerkError);
-    //     return NextResponse.json(
-    //       { error: 'Failed to fetch user from Clerk' },
-    //       { status: 500 },
-    //     );
-    //   }
+    const outcome = charge.outcome?.network_status;
+    if (outcome !== 'approved_by_network') {
+      const errorMessage = `Payment not approved by network: ${outcome}`;
+      console.log(errorMessage);
+      await sendEmail(
+        `[ALERT] ${errorMessage} at ${now}`,
+        `Full Request Body: ${JSON.stringify(body)}`,
+      );
+      return NextResponse.json({}, { status: 400 });
+    }
 
-    //   // Determine plan details based on amount
-    //   let plan, docs, reports, chats, days;
-    //   if (body.data.object.amount === 500) {
-    //     plan = 1;
-    //     docs = 1;
-    //     reports = 1;
-    //     chats = 30;
-    //     days = 30;
-    //   } else if (body.data.object.amount === 3900) {
-    //     plan = 2;
-    //     docs = 10;
-    //     reports = 10;
-    //     chats = 700;
-    //     days = 730;
-    //   } else {
-    //     await sendEmail(
-    //       `Invalid Subscription Amount Found at ${now}`,
-    //       `Full Stripe Request Body: ${JSON.stringify(body)}`,
-    //     );
-    //     console.log('Unrecognisable Amount:', body.data.object.amount);
-    //     return NextResponse.json({}, { status: 400 });
-    //   }
+    const billing = charge.billing_details;
+    const userEmail = billing?.email;
 
-    //   // Create new subscription
-    //   try {
-    //     const newSub = await prisma.subscriptions.create({
-    //       data: {
-    //         user_id: userId,
-    //         plan,
-    //         documents_allowed: docs,
-    //         reports_allowed: reports,
-    //         messages_allowed: chats,
-    //         expires_on: new Date(
-    //           new Date().setDate(new Date().getDate() + days),
-    //         ),
-    //       },
-    //     });
-    //     console.log('Subscription created:', newSub.id);
-    //   } catch (dbError) {
-    //     console.error('Error creating subscription:', dbError);
-    //     await sendEmail(
-    //       `Database Error at ${now}`,
-    //       `Error: ${JSON.stringify(dbError)}`,
-    //     );
-    //     return NextResponse.json({ error: 'Database error' }, { status: 500 });
-    //   }
+    if (!userEmail) {
+      const errorMessage = 'User email not found in billing details';
+      console.error(errorMessage);
+      await sendEmail(
+        `[ALERT] ${errorMessage} at ${now}`,
+        `Full Request Body: ${JSON.stringify(body)}`,
+      );
+      return NextResponse.json({ error: errorMessage }, { status: 400 });
+    }
 
-    //   return NextResponse.json({ message: 'Great success' }, { status: 200 });
-    // } else {
-    //   await sendEmail(
-    //     `Event Status was not Successful at ${now}`,
-    //     `Full Stripe Request Body: ${JSON.stringify(body)}`,
-    //   );
-    //   console.log('Event status not successful:', body.data.object.status);
-    //   return NextResponse.json({}, { status: 400 });
-    // }
+    // Verify user with Clerk
+    let userId: string;
+    try {
+      const clerkClient = createClerkClient({
+        secretKey: process.env.CLERK_SECRET_KEY,
+      });
+      const clerkUsers = await clerkClient.users.getUserList({
+        emailAddress: [userEmail],
+      });
+
+      if (!clerkUsers || clerkUsers.length === 0) {
+        const errorMessage = `No Clerk user found for email: ${userEmail}`;
+        console.error(errorMessage);
+        await sendEmail(
+          `[ALERT] ${errorMessage} at ${now}`,
+          `Email: ${userEmail}`,
+        );
+        return NextResponse.json({ error: errorMessage }, { status: 404 });
+      }
+      userId = clerkUsers[0].id;
+    } catch (clerkError) {
+      const errorMessage = 'Error fetching user from Clerk';
+      console.error(errorMessage, clerkError);
+      await sendEmail(
+        `[ALERT] ${errorMessage} at ${now}`,
+        `Error: ${JSON.stringify(clerkError)}`,
+      );
+      return NextResponse.json({ error: errorMessage }, { status: 500 });
+    }
+
+    // Determine mocks based on amount
+    const amountToMocksMap: Record<number, number> = {
+      500: 1,
+      2000: 5,
+      4000: 10,
+      5000: 13,
+      10100: 35,
+    };
+    const mocks = amountToMocksMap[charge.amount];
+
+    if (mocks === undefined) {
+      const errorMessage = `Invalid charge amount: ${charge.amount}`;
+      console.log(errorMessage);
+      await sendEmail(
+        `[ALERT] ${errorMessage} at ${now}`,
+        `Full Request Body: ${JSON.stringify(body)}`,
+      );
+      return NextResponse.json(
+        { error: 'Invalid charge amount' },
+        { status: 400 },
+      );
+    }
+
+    try {
+      // Check if a subscription exists and update/create accordingly
+      const existingSub = await prisma.subscriptions.findFirst({
+        where: { user_id: userId },
+      });
+
+      if (existingSub) {
+        const updatedSub = await prisma.subscriptions.update({
+          where: { id: existingSub.id },
+          data: {
+            mocks_available: existingSub.mocks_available + mocks,
+          },
+        });
+        console.log('Subscription updated:', updatedSub.id);
+      } else {
+        const newSub = await prisma.subscriptions.create({
+          data: {
+            user_id: userId,
+            mocks_available: mocks,
+            mocks_used: 0,
+          },
+        });
+        console.log('Subscription created:', newSub.id);
+      }
+    } catch (dbError) {
+      const errorMessage = 'Database error during subscription creation/update';
+      console.error(errorMessage, dbError);
+      await sendEmail(
+        `[ALERT] ${errorMessage} at ${now}`,
+        `Error: ${JSON.stringify(dbError)}`,
+      );
+      return NextResponse.json({ error: 'Database error' }, { status: 500 });
+    }
+
+    return NextResponse.json(
+      { message: 'Subscription successfully processed' },
+      { status: 200 },
+    );
   } catch (error) {
-    console.error('Internal server error:', error);
+    const errorMessage = 'Internal server error';
+    console.error(errorMessage, error);
     await sendEmail(
-      `Error in Subscriptions Webhook at ${now}`,
+      `[ALERT] ${errorMessage} at ${now}`,
       `Error: ${JSON.stringify(error)}`,
     );
-    return NextResponse.json(
-      { error: 'Internal Server Error' },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

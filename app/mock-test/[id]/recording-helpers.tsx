@@ -2,12 +2,12 @@ import { createClient } from '@supabase/supabase-js';
 import { v4 as uuidv4 } from 'uuid';
 
 // Ensure correct variable names
-const supabaseUrl : any = process.env.SUPABASE_ENDPOINT;
-const supabaseAnonKey : any = process.env.SUPABASE_ANON_KEY;
-const supabaseBucket : any = process.env.SUPABASE_BUCKET;
+const supabaseUrl: any = process.env.NEXT_PUBLIC_SUPABASE_ENDPOINT;
+const supabaseAnonKey: any = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseBucket: any = process.env.NEXT_PUBLIC_SUPABASE_BUCKET;
 
 // Initialize Supabase
-const supabase : any = createClient(supabaseUrl, supabaseAnonKey);
+const supabase: any = createClient(supabaseUrl, supabaseAnonKey);
 
 export const saveRecordingToStorage = async (
   userMockId: string,

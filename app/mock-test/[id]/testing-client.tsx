@@ -344,7 +344,9 @@ const TestingClient: React.FC<TestingClientProps> = ({
           <div className="text-1xl font-normal text-red-500 bg-red-100 p-4 mb-4">
             <ul>
               {userErrors.map((error, index) => (
-                <li key={index}>{error}</li>
+                <li key={index}>
+                  <p className="text-gray-700 font-normal text-sm">{error}</p>
+                </li>
               ))}
             </ul>
             <button onClick={clearErrors} className="text-blue-500">
