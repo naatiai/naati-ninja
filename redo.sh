@@ -6,4 +6,4 @@ npx prisma migrate reset
 npx prisma db push
 
 cd ../seed/.
-bash run.sh
+# bash run.sh
