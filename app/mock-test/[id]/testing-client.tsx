@@ -108,7 +108,7 @@ const TestingClient: React.FC<TestingClientProps> = ({
         body: JSON.stringify({ mockId }),
       });
       if (res.status !== 201) {
-        throw new Error('Failed to create user mock');
+        throw new Error('Error Activating Mock. Please review your subscription or contact support.');
       }
       const { status, userMock } = await res.json();
       if (mockId) {
@@ -313,7 +313,7 @@ const TestingClient: React.FC<TestingClientProps> = ({
       if (res.status === 200) {
         proceedToNextQuestion(userMockId);
       } else {
-        throw new Error('Failed to save answer');
+        throw new Error('Failed to Save Answer');
       }
     } catch (error: any) {
       setIsSavingAnswer(false); // Reset saving answer state
@@ -349,7 +349,10 @@ const TestingClient: React.FC<TestingClientProps> = ({
                 </li>
               ))}
             </ul>
-            <button onClick={clearErrors} className="text-blue-500">
+            <button
+              onClick={clearErrors}
+              className="font-normal text-sm text-blue-500"
+            >
               Clear Errors
             </button>
           </div>

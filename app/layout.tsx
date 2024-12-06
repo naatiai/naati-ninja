@@ -1,4 +1,3 @@
-// app/layout.tsx
 import '../styles/globals.css';
 import { ClerkProvider } from '@clerk/nextjs';
 import type { Metadata } from 'next';
@@ -11,11 +10,18 @@ const anek = Anek_Bangla({
   display: 'swap',
 });
 
-let title = 'NAATI Ninja | Master Your NAATI CCL Exam with the best Mock Tests';
-let description = 'Your NAATI CCL Test Companion';
-let ogimage = 'https://naatininja.com/og-image.png';
-let url = 'https://naatininja.com';
-let sitename = 'naatininja.com';
+const title =
+  'NAATI Ninja | Master Your NAATI CCL Exam with the Best Mock Tests';
+const description =
+  'NAATI Ninja is your ultimate companion for NAATI CCL preparation. Ace your test with high-quality mock tests, AI-driven feedback, and real-time grading.';
+const ogImage = '/logo.png'; // '/images/og-image.png';
+const favicon = '/favicon.ico';
+const appleTouchIcon = '/favicons/apple-touch-icon.png';
+const favicon32 = '/favicons/favicon-32x32.png';
+const favicon16 = '/favicons/favicon-16x16.png';
+const manifest = '/site.webmanifest';
+const url = 'https://app.naatininja.com';
+const siteName = 'NAATI Ninja';
 
 const PostHogPageView = dynamic(() => import('./PostHogPageView'), {
   ssr: false,
@@ -26,23 +32,35 @@ export const metadata: Metadata = {
   title,
   description,
   icons: {
-    icon: '/favicon.ico',
+    icon: favicon,
   },
   openGraph: {
-    images: [ogimage],
     title,
     description,
-    url: url,
-    siteName: sitename,
+    url,
+    siteName,
     locale: 'en_US',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    images: [ogimage],
     title,
     description,
+    images: [ogImage],
   },
+  keywords: [
+    'NAATI CCL',
+    'NAATI Ninja',
+    'NAATI CCL exam preparation',
+    'NAATI mock tests',
+    'NAATI AI grading',
+    'NAATI CCL test companion',
+    'NAATI practice platform',
+    'CCL exam tips',
+    'NAATI online test prep',
+    'Australia PR',
+    '5 Points',
+  ],
 };
 
 export default function RootLayout({
@@ -54,6 +72,66 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className={anek.className}>
         <PHProvider>
+          <head>
+            {/* Primary Meta Tags */}
+            <meta name="title" content={String(title)} />
+            <meta name="description" content={String(description)} />
+            <meta
+              name="keywords"
+              content={
+                Array.isArray(metadata.keywords)
+                  ? metadata.keywords.join(', ')
+                  : String(metadata.keywords || '')
+              }
+            />
+            <meta name="author" content="NAATI Ninja" />
+            <meta name="robots" content="index, follow" />
+            <meta
+              name="viewport"
+              content={String('width=device-width, initial-scale=1')}
+            />
+
+            {/* Favicon */}
+            <link rel="icon" href={favicon} />
+            <link
+              rel="apple-touch-icon"
+              sizes="180x180"
+              href={appleTouchIcon}
+            />
+            <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />
+            <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />
+            <link rel="manifest" href={manifest} />
+
+            {/* Open Graph Meta Tags */}
+            <meta property="og:type" content="website" />
+            <meta
+              property="og:title"
+              content={String(metadata.openGraph?.title || '')}
+            />
+            <meta
+              property="og:description"
+              content={String(metadata.openGraph?.description || '')}
+            />
+            <meta
+              property="og:url"
+              content={String(metadata.openGraph?.url || '')}
+            />
+            <meta
+              property="og:site_name"
+              content={String(metadata.openGraph?.siteName || '')}
+            />
+            <meta property="og:image" content={ogImage || ''} />
+            <meta property="og:image:width" content="1200" />
+            <meta property="og:image:height" content="630" />
+            <meta
+              property="og:image:alt"
+              content="NAATI Ninja - Master Your NAATI CCL Exam"
+            />
+            <meta property="og:image:type" content="image/png" />
+
+            {/* Additional SEO Enhancements */}
+            <link rel="canonical" href={url} />
+          </head>
           <body>
             <PostHogPageView />
             {children}
