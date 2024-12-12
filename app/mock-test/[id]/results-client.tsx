@@ -65,7 +65,7 @@ export default function ResultsClient({
     // Fetch question and answer results
     async function fetchResultsData() {
       try {
-        console.log(mockId, userMock.id);
+        // console.log(mockId, userMock.id);
         const response = await fetch(`/api/mocks/get_result_data`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

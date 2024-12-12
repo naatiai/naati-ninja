@@ -108,7 +108,9 @@ const TestingClient: React.FC<TestingClientProps> = ({
         body: JSON.stringify({ mockId }),
       });
       if (res.status !== 201) {
-        throw new Error('Error Activating Mock. Please review your subscription or contact support.');
+        throw new Error(
+          'Error Activating Mock. Please review your subscription or contact support.',
+        );
       }
       const { status, userMock } = await res.json();
       if (mockId) {
@@ -195,7 +197,7 @@ const TestingClient: React.FC<TestingClientProps> = ({
 
   const startRecording = (quesId: string, userMockId: string) => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      console.error('MediaDevices API not supported in this browser.');
+      console.error('Media Devices API not supported in this browser.');
       setUserErrors((prev) => [
         ...prev,
         'Recording not supported in this browser.',
@@ -417,7 +419,9 @@ const TestingClient: React.FC<TestingClientProps> = ({
                 Record your Answer in {ansLanguage}
               </p>
               {isFetchingQuestion ? (
-                <p>Loading next question</p>
+                <p className="text-gray-900 font-normal text-2xl">
+                  Loading next question
+                </p>
               ) : (
                 <>
                   {timer > 0 && (

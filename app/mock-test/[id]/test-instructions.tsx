@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 // import Header from '@/components/ui/Header';
 import { useRouter } from 'next/navigation';
 import Tooltip from '@mui/material/Tooltip';
@@ -10,9 +10,9 @@ const TestInstructions: React.FC<{ proceedToNextStep: () => void }> = ({
   const [showTestAudio, setShowTestAudio] = useState(false);
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
 
-  // visualiser
-  const visualizerRef = useRef<HTMLCanvasElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const router = useRouter();
 
   const startTestAudioRecording = async () => {
@@ -38,14 +38,38 @@ const TestInstructions: React.FC<{ proceedToNextStep: () => void }> = ({
     }
   };
 
+  const playAudio = () => {
+    if (audioUrl && !isAudioPlaying) {
+      audioRef.current = new Audio(audioUrl);
+      audioRef.current.play();
+      setIsAudioPlaying(true);
+
+      // Reset playing state when the audio ends
+      audioRef.current.onended = () => setIsAudioPlaying(false);
+    }
+  };
+
+  const stopAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0; // Reset playback position
+      setIsAudioPlaying(false);
+    }
+  };
+
   const redirectToDashboard = () => {
+    stopAudio(); // Ensure audio stops when navigating away
     router.push('/dashboard');
   };
+
+  useEffect(() => {
+    // Clean up audio on unmount or page change
+    return () => stopAudio();
+  }, []);
 
   return (
     <div>
       <div className="text-left pl-4">
-        {/* <Header /> */}
         <Tooltip title="Back to Dashboard">
           <CloseIcon
             onClick={redirectToDashboard}
@@ -56,9 +80,9 @@ const TestInstructions: React.FC<{ proceedToNextStep: () => void }> = ({
       </div>
       <div className="mx-auto w-4/5">
         <div className="text-lg space-y-2">
-          {/* Step 1: Instructions */}
           {!showTestAudio ? (
             <>
+              {/* Instructions Section */}
               <ul className="list-disc pl-6 space-y-1">
                 {/* Include detailed instructions here */}
 
@@ -67,7 +91,7 @@ const TestInstructions: React.FC<{ proceedToNextStep: () => void }> = ({
                     Instructions
                   </h2>
                   <div className="mb-5">
-                    <iframe
+                    {/* <iframe
                       width="100%"
                       height="315"
                       src="https://www.youtube.com/embed/ueBOKLl1LWE?si=ypNNERTeEjSzQBaL"
@@ -75,7 +99,7 @@ const TestInstructions: React.FC<{ proceedToNextStep: () => void }> = ({
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                       referrerPolicy="strict-origin-when-cross-origin"
                       allowFullScreen
-                    ></iframe>
+                    ></iframe> */}
                   </div>
                   <div className="text-lg space-y-2">
                     <p className="text-center text-xl sm:text-[25px] font-normal tracking-[-0.6px] sm:tracking-[-1.2px] m-4 bg-clip-text text_bg">
@@ -238,7 +262,7 @@ const TestInstructions: React.FC<{ proceedToNextStep: () => void }> = ({
               </button>
             </>
           ) : (
-            /* Step 2: Audio test */
+            /* Audio Test Section */
             <>
               <h3 className="text-center text-3xl sm:text-[40px] font-normal leading-[72px] tracking-[-0.6px] sm:tracking-[-1.2px] bg-clip-text text_bg pb-3 sm:pb-[30px]">
                 Test Your Audio
@@ -266,10 +290,11 @@ const TestInstructions: React.FC<{ proceedToNextStep: () => void }> = ({
                 <div>
                   <div className="mt-4 flex justify-center space-x-2">
                     <button
-                      onClick={() => new Audio(audioUrl).play()}
+                      onClick={playAudio}
+                      disabled={isAudioPlaying}
                       className="mt-3 w-full py-2 bg-green-600 text-white rounded-lg shadow-lg duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-gray-500/50"
                     >
-                      Play Test Audio
+                      {isAudioPlaying ? 'Playing...' : 'Play Test Audio'}
                     </button>
                   </div>
                 </div>
@@ -277,6 +302,7 @@ const TestInstructions: React.FC<{ proceedToNextStep: () => void }> = ({
               <div className="flex justify-center">
                 <button
                   onClick={() => {
+                    stopAudio();
                     setAudioUrl(null); // Clear the audio from memory
                     proceedToNextStep();
                   }}

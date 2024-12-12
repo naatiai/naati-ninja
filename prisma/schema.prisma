@@ -25,6 +25,7 @@ model Mocks {
   description   String
   time_duration Int
   no_of_qa      Int
+  difficulty    String          @default("Medium")
   language      String          @default("Hindi")
   created_on    DateTime        @default(now()) @db.Timestamp(6)
   MockQuestions MockQuestions[]
@@ -40,6 +41,7 @@ model MockQuestions {
   mock_id         String
   audio_file_url  String
   order           Int           @default(1)
+  answer_time     Int           @default(15)
   transcript      String
   language        String        @default("English")
   answer_language String        @default("English")
