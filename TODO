@@ -49,7 +49,7 @@ Thank you for your payment. Please allow a few minutes for the transaction to re
 [done] Header Width (user circle goes wide, logo needs width trimming)
 [done] Loading Next Question (className styling)
 
-[TODO] Mock Name is Incorrect in Test Client
-[TODO] Fix Timeout issue on how long rec runs for
+[done] Mock Name is Incorrect in Test Client
+[to-test] Fix Timeout issue on how long rec runs for
 [TODO] Testing Instructions Video
 [TODO] Stripe email added auto -> https://www.perplexity.ai/search/is-there-a-way-to-embed-the-em-.OopP5WMQV6wtM7Bn8dNdw

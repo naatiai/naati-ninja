@@ -44,6 +44,7 @@ export async function POST(req: Request) {
         transcript: true,
         language: true,
         answer_language: true,
+        answer_time: true,
         created_on: true,
       },
     });

@@ -11,6 +11,12 @@ interface TestingClientProps {
   // userMockId: string;
 }
 
+declare global {
+  interface Window {
+    stopRecording?: () => void;
+  }
+}
+
 const TestingClient: React.FC<TestingClientProps> = ({
   mockId,
   // userMockId,
@@ -43,6 +49,7 @@ const TestingClient: React.FC<TestingClientProps> = ({
     audioSrc: string,
     quesId: string,
     userMockId: string,
+    answerTime: number, // New parameter
   ) => {
     const questionAudio = new Audio(audioSrc);
     audioRef.current = questionAudio;
@@ -52,8 +59,10 @@ const TestingClient: React.FC<TestingClientProps> = ({
       await questionAudio.play();
       console.log('Audio started playing');
       questionAudio.onended = () => {
-        console.log('Audio finished playing, waiting 5 seconds');
-        setTimeout(() => startRecording(quesId, userMockId), 5000); // Delay before recording
+        console.log(
+          `Audio finished playing, waiting 5 seconds before recording for ${answerTime} seconds`,
+        );
+        setTimeout(() => startRecording(quesId, userMockId, answerTime), 5000);
       };
     } catch (error: any) {
       console.error('Audio playback error:', error);
@@ -85,9 +94,9 @@ const TestingClient: React.FC<TestingClientProps> = ({
         body: JSON.stringify({ mockId }),
       });
       const data = await res.json();
-      if (data && data.length > 0) {
+      if (data) {
         // console.log('Mock details fetched:', data[0]);
-        setMockDetails(data[0]);
+        setMockDetails(data);
         // console.log('Setting userMockId', data[0].userMockId); // TOTEST
         // setUserMockId(data[0].userMockId);
       }
@@ -109,7 +118,7 @@ const TestingClient: React.FC<TestingClientProps> = ({
       });
       if (res.status !== 201) {
         throw new Error(
-          'Error Activating Mock. Please review your subscription or contact support.',
+          'We could not activate your Mock. Please review your subscription or contact support.',
         );
       }
       const { status, userMock } = await res.json();
@@ -144,7 +153,6 @@ const TestingClient: React.FC<TestingClientProps> = ({
 
     try {
       setIsFetchingQuestion(true);
-      // console.log(`Fetching question ${questionNumber}...`);
       const questionRes = await fetch('/api/mocks/get_question', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -158,15 +166,11 @@ const TestingClient: React.FC<TestingClientProps> = ({
       }
 
       const questionData = await questionRes.json();
-      // setQuesId(questionData.id);
-      // setQuestionUrl(questionData.audio_file_url);
-      // console.log('quesId set to:', questionData.id); // Debugging line
       setIsFetchingQuestion(false);
       setAnsLanguage(questionData.answer_language);
 
       if (questionData.audio_file_url) {
         if (isFirstTime) {
-          // console.log('First question, starting test...', questionData);
           setIsTestStarted(true);
         }
 
@@ -182,6 +186,7 @@ const TestingClient: React.FC<TestingClientProps> = ({
                 questionData.audio_file_url,
                 questionData.id,
                 userMockId,
+                questionData.answer_time, // Pass answer time to audio playback
               ),
             2000,
           );
@@ -195,7 +200,11 @@ const TestingClient: React.FC<TestingClientProps> = ({
     }
   };
 
-  const startRecording = (quesId: string, userMockId: string) => {
+  const startRecording = (
+    quesId: string,
+    userMockId: string,
+    answerTime: number,
+  ) => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       console.error('Media Devices API not supported in this browser.');
       setUserErrors((prev) => [
@@ -206,7 +215,7 @@ const TestingClient: React.FC<TestingClientProps> = ({
     }
 
     setIsRecording(true);
-    console.log('Recording started');
+    console.log(`Recording started with answer time: ${answerTime} seconds`);
     const beepAudio = new Audio('/audio/beep.wav');
     beepAudio.play();
 
@@ -219,10 +228,19 @@ const TestingClient: React.FC<TestingClientProps> = ({
         });
 
         const chunks: Blob[] = []; // Array to store recorded data chunks
+        let recordingTimeout: NodeJS.Timeout;
 
         mediaRecorder.ondataavailable = (event) => {
           if (event.data.size > 0) {
             chunks.push(event.data); // Collect chunks of recording data
+          }
+        };
+
+        const stopRecording = () => {
+          if (mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+            clearTimeout(recordingTimeout);
+            stream.getTracks().forEach((track) => track.stop());
           }
         };
 
@@ -237,11 +255,13 @@ const TestingClient: React.FC<TestingClientProps> = ({
 
         mediaRecorder.start(); // Start recording
 
-        // Stop recording after 15 seconds (adjust duration as needed)
-        setTimeout(() => {
-          mediaRecorder.stop();
-          stream.getTracks().forEach((track) => track.stop()); // Stop all tracks after recording
-        }, 15000); // Change to desired duration
+        // Stop recording after specified answer time
+        recordingTimeout = setTimeout(() => {
+          stopRecording();
+        }, answerTime * 1000);
+
+        // Expose stop function to component state
+        window.stopRecording = stopRecording;
       })
       .catch((error: any) => {
         console.error('Error accessing microphone:', error);
@@ -445,6 +465,21 @@ const TestingClient: React.FC<TestingClientProps> = ({
                       ? 'Playing Audio'
                       : 'Waiting'}
                   </button>
+                  {/* <button
+                    className={`w-full px-2 py-2 mt-4 text-white rounded-md transition-all duration-200 ${
+                      isRecording
+                        ? 'bg-red-500 cursor-pointer hover:bg-red-600'
+                        : 'bg-gray-400 cursor-not-allowed'
+                    }`}
+                    onClick={isRecording ? window.stopRecording : undefined}
+                    disabled={!isRecording}
+                  >
+                    {isRecording
+                      ? 'Stop Recording'
+                      : audioPlaying
+                      ? 'Playing Audio'
+                      : 'Waiting'}
+                  </button> */}
                   {isRecording && (
                     <p className="text-gray-700 font-normal text-sm">
                       Recording will automatically stop in 15 seconds

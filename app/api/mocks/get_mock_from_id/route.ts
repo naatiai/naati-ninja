@@ -10,43 +10,52 @@ export async function POST(req: Request) {
   }
 
   try {
-    // Fetch all mocks ordered by creation date
-    const mocks = await prisma.mocks.findMany({
-      orderBy: {
-        created_on: 'desc',
+    // Parse input to get the mockId
+    const body = await req.json();
+    const { mockId } = body;
+
+    if (!mockId) {
+      return NextResponse.json(
+        { error: 'mockId is required' },
+        { status: 400 },
+      );
+    }
+
+    // Fetch the mock with the given mockId
+    const mock = await prisma.mocks.findUnique({
+      where: {
+        id: mockId,
       },
     });
 
-    // Fetch userMocks with the corresponding mock ids
-    const mockIds = mocks.map((mock) => mock.id);
-    const userMocks = await prisma.userMocks.findMany({
+    if (!mock) {
+      return NextResponse.json({ error: 'Mock not found' }, { status: 404 });
+    }
+
+    // Fetch the associated userMock
+    const userMock = await prisma.userMocks.findFirst({
       where: {
-        mock_id: {
-          in: mockIds,
-        },
-        user_id: userId,  // Filter by the current user’s ID
+        mock_id: mockId,
+        user_id: userId, // Filter by the current user's ID
       },
       select: {
         mock_id: true,
-        id: true,  // Fetch the userMock id for association
+        id: true, // Fetch the userMock id for association
       },
     });
 
-    // Map over mocks to append associated userMockId
-    const mocksList = mocks.map((mock) => {
-      const associatedUserMock = userMocks.find(
-        (userMock) => userMock.mock_id === mock.id,
-      );
+    // Append userMockId to the mock data
+    const result = {
+      ...mock,
+      userMockId: userMock ? userMock.id : null,
+    };
 
-      return {
-        ...mock,
-        userMockId: associatedUserMock ? associatedUserMock.id : null,
-      };
-    });
-
-    return NextResponse.json(mocksList);
+    return NextResponse.json(result);
   } catch (error: any) {
-    console.error('Error fetching mocks:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Error fetching mock:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 },
+    );
   }
 }
