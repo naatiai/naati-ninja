@@ -4,8 +4,8 @@ import type { Metadata } from 'next';
 import { Anek_Bangla } from 'next/font/google';
 import { PHProvider } from './providers';
 import dynamic from 'next/dynamic';
-import { SpeedInsights } from "@vercel/speed-insights/next"
-import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from '@vercel/speed-insights/next';
+import { Analytics } from '@vercel/analytics/react';
 
 const anek = Anek_Bangla({
   subsets: ['latin'],
@@ -75,6 +75,22 @@ export default function RootLayout({
       <html lang="en" className={anek.className}>
         <PHProvider>
           <head>
+            {/* GA */}
+            <script
+              async
+              src="https://www.googletagmanager.com/gtag/js?id=G-Y1EMQE876X"
+            ></script>
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', 'G-Y1EMQE876X');
+              `,
+              }}
+            />
+
             {/* Primary Meta Tags */}
             <meta name="title" content={String(title)} />
             <meta name="description" content={String(description)} />
@@ -141,7 +157,6 @@ export default function RootLayout({
             {/* VERCEL ANALYTICS */}
             <SpeedInsights />
             <Analytics />
-
           </body>
         </PHProvider>
       </html>
