@@ -1,15 +1,8 @@
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-// import Alert from '@mui/material/Alert';
-// import { formatDistance } from 'date-fns';
-// import Link from 'next/link';
 
 export default function SubClient() {
-  const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false);
-
   const [sliderValue, setSliderValue] = useState(0);
-  const [payLink, setPayLink] = useState('');
+  const [loading, setLoading] = useState(false);
   const [advisorText, setAdvisorText] = useState('1 mock');
   const [price, setPrice] = useState({
     currency: '$',
@@ -24,12 +17,29 @@ export default function SubClient() {
     4: '35 mocks',
   };
 
+  const priceIds: any =
+    process.env.NEXT_PUBLIC_NODE_ENV !== 'production'
+      ? {
+          0: 'price_1QVRAJB0tTO2dqMYUeT6OYmu',
+          1: 'price_1QVRB5B0tTO2dqMYKDhN5PeA',
+          2: 'price_1QVRBLB0tTO2dqMYudniKOa2',
+          3: 'price_1QVRCAB0tTO2dqMYXKqt2KsJ',
+          4: 'price_1QVRCdB0tTO2dqMY9wwOk0V9',
+        }
+      : {
+          0: 'price_1QRLrOB0tTO2dqMYzlTWyQo0',
+          1: 'price_1QRLwtB0tTO2dqMY42wYI1W0',
+          2: 'price_1QRLySB0tTO2dqMYXG2BmLA1',
+          3: 'price_1QRLzEB0tTO2dqMYdqecclS9',
+          4: 'price_1QRM07B0tTO2dqMYd0CiGMC5',
+        };
+
   const priceOutput: any = {
-    0: ['$', '5', 'https://buy.stripe.com/cN29B6bO1cOWfxm9AA'],
-    1: ['$', '20', 'https://buy.stripe.com/5kAdRm6tHcOW98Y3cd'],
-    2: ['$', '40', 'https://buy.stripe.com/3cs14A05j7uCbh6002'],
-    3: ['$', '50', 'https://buy.stripe.com/6oE5kQ05j9CKbh6003'],
-    4: ['$', '101', 'https://buy.stripe.com/5kAbJe5pDeX4dpe9AE'],
+    0: ['$', '5'],
+    1: ['$', '20'],
+    2: ['$', '40'],
+    3: ['$', '50'],
+    4: ['$', '101'],
   };
 
   useEffect(() => {
@@ -38,11 +48,42 @@ export default function SubClient() {
       currency: priceOutput[sliderValue][0],
       amount: priceOutput[sliderValue][1],
     });
-    setPayLink(priceOutput[sliderValue][2]);
   }, [sliderValue]);
 
   const handleChange = (e: any) => {
     setSliderValue(Number(e.target.value));
+  };
+
+  const handlePayment = async () => {
+    setLoading(true);
+    const priceId = priceIds[sliderValue];
+
+    try {
+      const response = await fetch('/api/subscriptions/create_session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ priceId }),
+      });
+
+      if (!response.ok) {
+        setLoading(false);
+        throw new Error('Failed to create a checkout session.');
+      }
+
+      const { url } = await response.json();
+      if (url) {
+        // window.open(url, '_blank', 'noopener,noreferrer');
+        window.open(url, 'noopener,noreferrer');
+        setLoading(false);
+      }
+
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      console.error('Error initiating payment:', error);
+    }
   };
 
   return (
@@ -74,6 +115,7 @@ export default function SubClient() {
             }}
           />
         </div>
+
         {/* Pricing Section */}
         <div className="flex flex-wrap justify-center gap-4">
           <div className="w-72 p-6 bg-white rounded shadow-md">
@@ -102,14 +144,48 @@ export default function SubClient() {
                 Powered by AI
               </li>
             </ul>
-            <button
-              className="inline-flex items-center px-4 py-2 font-semibold leading-6 text-lg shadow rounded-md hover:border-1 hover:rounded-lg bg-gradient-to-r from-[#099f9e] to-[#f7941e] hover:from-white hover:to-white hover:text-[#099f9e] transition ease-in-out duration-150 cursor-pointer text-white"
-              onClick={() =>
-                window.open(payLink, '_blank', 'noopener,noreferrer')
-              }
-            >
-              Pay Now
-            </button>
+            <div className="flex justify-center mt-4 mb-3">
+              {loading ? (
+                <button
+                  disabled
+                  className="inline-flex items-center shadow rounded-md cursor-not-allowed"
+                >
+                  <button
+                    type="button"
+                    className="inline-flex items-center px-4 py-2 font-semibold leading-6 text-lg shadow rounded-md text-black transition ease-in-out duration-150 cursor-not-allowed"
+                  >
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-black"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Loading...
+                  </button>
+                </button>
+              ) : (
+                <button
+                  className="inline-flex items-center px-4 py-2 font-semibold leading-6 text-lg shadow rounded-md hover:border-1 hover:rounded-lg bg-gradient-to-r from-[#099f9e] to-[#f7941e] hover:from-white hover:to-white hover:text-[#099f9e] transition ease-in-out duration-150 cursor-pointer text-white"
+                  onClick={handlePayment}
+                >
+                  Pay Now
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

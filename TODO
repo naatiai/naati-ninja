@@ -40,16 +40,17 @@ Thank you for your payment. Please allow a few minutes for the transaction to re
 ---
 
 [idea] Grading to include bars eg. Word count, accuracy, quality of language, delivery, feedback
-[idea] Difficulty level on Mocks
-[idea] Time for recording on each question
 [idea] Pass/Fail and Score on Dashboard
+[TODO] Testing Instructions Video
 
+[done] Filter for Languages on Dashboard
+[done] Time for recording on each question
+[done] Difficulty level on Mocks
 [done] Remove all console logs (eg. results page)
 [done] Prevent Multiple plays of test audio
 [done] Header Width (user circle goes wide, logo needs width trimming)
 [done] Loading Next Question (className styling)
 
 [done] Mock Name is Incorrect in Test Client
-[to-test] Fix Timeout issue on how long rec runs for
-[TODO] Testing Instructions Video
-[TODO] Stripe email added auto -> https://www.perplexity.ai/search/is-there-a-way-to-embed-the-em-.OopP5WMQV6wtM7Bn8dNdw
+[edge-case] Fix Timeout issue on how long rec runs for
+[done] Stripe email added auto -> https://www.perplexity.ai/search/is-there-a-way-to-embed-the-em-.OopP5WMQV6wtM7Bn8dNdw

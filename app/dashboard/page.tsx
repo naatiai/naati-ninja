@@ -16,25 +16,9 @@ const modalStyle = {
 };
 
 export default function Page() {
-  const [mocksList, setMocksList] = useState([]);
   const [disclaimerOpen, setDisclaimerOpen] = useState(false);
 
   useEffect(() => {
-    const fetchDocsList = async () => {
-      try {
-        const response = await fetch('/api/mocks/get_mocks');
-        if (!response.ok) {
-          throw new Error('Failed to fetch mocks');
-        }
-        const data = await response.json();
-        setMocksList(data);
-      } catch (error) {
-        console.error('Error fetching Mocks:', error);
-      }
-    };
-
-    fetchDocsList();
-
     const hasAcknowledgedDisclaimer = localStorage.getItem(
       'hasAcknowledgedDisclaimer',
     );
@@ -50,7 +34,7 @@ export default function Page() {
 
   return (
     <div>
-      <DashboardClient mocksList={mocksList} />
+      <DashboardClient />
       {/* <Modal
         open={disclaimerOpen}
         onClose={handleDisclaimerClose}

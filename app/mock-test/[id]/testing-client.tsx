@@ -28,6 +28,7 @@ const TestingClient: React.FC<TestingClientProps> = ({
   // const [quesId, setQuesId] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [questionNumber, setQuestionNumber] = useState(1);
+  const [ansTime, setAnsTime] = useState(15);
   const [ansLanguage, setAnsLanguage] = useState('');
   const [isFetchingQuestion, setIsFetchingQuestion] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
@@ -168,6 +169,7 @@ const TestingClient: React.FC<TestingClientProps> = ({
       const questionData = await questionRes.json();
       setIsFetchingQuestion(false);
       setAnsLanguage(questionData.answer_language);
+      setAnsTime(questionData.answer_time);
 
       if (questionData.audio_file_url) {
         if (isFirstTime) {
@@ -439,9 +441,9 @@ const TestingClient: React.FC<TestingClientProps> = ({
                 Record your Answer in {ansLanguage}
               </p>
               {isFetchingQuestion ? (
-                <p className="text-gray-900 font-normal text-2xl">
+                <button className="w-full px-2 py-2 mt-4 text-white cursor-not-allowed rounded-md transition-all duration-200 bg-gray-500 hover:bg-gray-800">
                   Loading next question
-                </p>
+                </button>
               ) : (
                 <>
                   {timer > 0 && (
@@ -482,7 +484,7 @@ const TestingClient: React.FC<TestingClientProps> = ({
                   </button> */}
                   {isRecording && (
                     <p className="text-gray-700 font-normal text-sm">
-                      Recording will automatically stop in 15 seconds
+                      Recording will automatically stop in {ansTime} seconds
                     </p>
                   )}
                 </>
