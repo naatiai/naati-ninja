@@ -7,9 +7,10 @@ const Languages = () => {
         Practice in Your Preferred Language
       </h2> */}
       <p className="text-primary text-center text-[17px] sm:text-2xl font-light sm:leading-[34.5px] sm:tracking-[-0.6px] leading-[22px] tracking-[-0.34px] max-w-[728px] mx-auto pb-[18px] sm:pb-11">
-        Currently supporting Hindi with more languages coming soon!
+        Currently supporting Hindi, Tamil, Mandarin with more languages
+        coming soon!
       </p>
-      <div className="flex justify-center">
+      {/* <div className="flex justify-center">
         <div className="shadow-[0px_0.5px_4px_0px_rgba(0,0,0,0.15)_inset] drop_shadow rounded-full flex items-center gap-[3px] sm:gap-2 py-0.5 sm:py-3 px-6">
           <Image
             src="/india-flag.svg"
@@ -18,15 +19,15 @@ const Languages = () => {
             height={30}
             className="w-[37px] h-[23px] sm:w-[73px] sm:h-[73px]"
           />
-          {/* <Image
+          <Image
             src="/spain-flag.svg"
             alt="Spanish"
             width={30}
             height={30}
             className="w-[37px] h-[23px] sm:w-[73px] sm:h-[73px]"
-          /> */}
+          />
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

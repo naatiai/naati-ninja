@@ -9,7 +9,7 @@ export default function DashboardClient() {
   const [sub, setSub] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('Hindi'); // Default to Hindi
-  const languages = ['Hindi', 'Urdu', 'Tamil', 'Punjabi'];
+  const languages = ['Hindi', 'Tamil', 'Mandarin'];
 
   useEffect(() => {
     const fetchMocks = async () => {
