@@ -3,8 +3,7 @@ import Header from '@/components/home/Header';
 import Hero from '@/components/home/Hero';
 import HowItWorks from '@/components/home/HowItWorks';
 import DocTypes from '@/components/home/DocTypes';
-import HowToAI from '@/components/home/HowToAI';
-import Languages from '@/components/home/Languages';
+import CTA from '@/components/home/CTA';
 import { currentUser } from '@clerk/nextjs';
 import { User } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
@@ -22,8 +21,7 @@ export default async function Home() {
       <Hero />
       <HowItWorks />
       <DocTypes />
-      <Languages />
-      {/* <HowToAI /> */}
+      <CTA />
       <Footer />
     </main>
   );

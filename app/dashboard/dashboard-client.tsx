@@ -78,7 +78,7 @@ export default function DashboardClient() {
               {languages.map((lang) => (
                 <label
                   key={lang}
-                  className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-300 cursor-pointer"
+                  className="flex items-center space-x-2 p-2 rounded-lg hover:bg-blue-100 cursor-pointer"
                 >
                   <input
                     type="radio"
@@ -115,7 +115,7 @@ export default function DashboardClient() {
 
                     {/* Language Tag */}
                     <div className="absolute top-3 right-3 sm:top-2 sm:right-2">
-                      <span className="text-xs sm:text-sm font-semibold text-green-800 bg-green-100 border border-green-300 rounded-full px-2 py-1 flex justify-center items-center sm:items-start sm:justify-end sm:w-auto">
+                      <span className="text-xs sm:text-sm font-semibold text-blue-800 bg-blue-100 border border-blue-300 rounded-full px-2 py-1 flex justify-center items-center sm:items-start sm:justify-end sm:w-auto">
                         {mock.language}
                       </span>
                     </div>

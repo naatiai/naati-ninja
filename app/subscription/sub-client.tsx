@@ -7,6 +7,7 @@ export default function SubClient() {
   const [price, setPrice] = useState({
     currency: '$',
     amount: '5',
+    value: '5',
   });
 
   const priceInput: any = {
@@ -35,11 +36,11 @@ export default function SubClient() {
         };
 
   const priceOutput: any = {
-    0: ['$', '5'],
-    1: ['$', '20'],
-    2: ['$', '40'],
-    3: ['$', '50'],
-    4: ['$', '101'],
+    0: ['$', '5', '5'],
+    1: ['$', '20', '4'],
+    2: ['$', '40', '4'],
+    3: ['$', '50', '3.8'],
+    4: ['$', '101', '2.8'],
   };
 
   useEffect(() => {
@@ -47,6 +48,7 @@ export default function SubClient() {
     setPrice({
       currency: priceOutput[sliderValue][0],
       amount: priceOutput[sliderValue][1],
+      value: priceOutput[sliderValue][2],
     });
   }, [sliderValue]);
 
@@ -122,9 +124,17 @@ export default function SubClient() {
             <div className="mt-2 mb-2 text-gray-900 text-2xl font-semibold">
               {advisorText}
             </div>
-            <div className="text-3xl font-medium text-gray-500">
+            <div className="text-3xl font-medium text-gray-600">
               <span>{price.currency}</span>
               <span>{price.amount}</span>
+            </div>
+            <div className="text-sm mt-2 mb-4 text-gray-400">
+              <span>
+                {"( "}
+                {price.currency}
+                {price.value} / mock
+                {" )"}
+              </span>
             </div>
             <ul className="mt-4 text-gray-600 m-3 flex flex-wrap justify-center">
               <li className="flex items-center py-2">

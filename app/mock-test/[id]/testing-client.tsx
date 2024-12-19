@@ -363,25 +363,6 @@ const TestingClient: React.FC<TestingClientProps> = ({
 
   return (
     <div className="flex-grow max-w-7xl mx-auto">
-      {userErrors.length > 0 && (
-        <div className="p-4 border-2 bg-white text-center shadow-lg rounded-lg overflow-hidden relative">
-          <div className="text-1xl font-normal text-red-500 bg-red-100 p-4 mb-4">
-            <ul>
-              {userErrors.map((error, index) => (
-                <li key={index}>
-                  <p className="text-gray-700 font-normal text-sm">{error}</p>
-                </li>
-              ))}
-            </ul>
-            <button
-              onClick={clearErrors}
-              className="font-normal text-sm text-blue-500"
-            >
-              Clear Errors
-            </button>
-          </div>
-        </div>
-      )}
       {showInstructions ? (
         <TestInstructions proceedToNextStep={handleProceedToNextStep} />
       ) : (
@@ -508,6 +489,25 @@ const TestingClient: React.FC<TestingClientProps> = ({
             </div>
           )}
         </>
+      )}
+      {userErrors.length > 0 && (
+        <div className="p-4 border-2 bg-white text-center shadow-lg rounded-lg overflow-hidden relative">
+          <div className="text-1xl font-normal text-red-500 bg-red-100 p-4 mb-4">
+            <ul>
+              <li>
+                <p className="text-gray-700 font-normal text-sm">
+                  {userErrors[userErrors.length - 1]}
+                </p>
+              </li>
+            </ul>
+            <button
+              onClick={clearErrors}
+              className="font-normal text-sm text-blue-500"
+            >
+              Clear Errors
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

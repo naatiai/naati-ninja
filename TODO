@@ -30,12 +30,11 @@ APIs:
 [done] - ERROR when starting test -> user can not click on the button
 [done] - Display language to answer in
 
-Audio Waveform
-[to-test] Subscription Webhook
+[idea] Audio Waveform
+[done] Subscription Webhook
 [done] stripe links
 [done] AI Grading
-[TODO] Clean Errors on Test page
-[TODO] recording-helpers -> Move Supabase creds to API
+[done] Clean Errors on Test page
 
 [stripe-text]
 Thank you for your payment. Please allow a few minutes for the transaction to reflect in your account. For any issues or assistance, feel free to reach out to us at support@naatininja.com
@@ -45,6 +44,7 @@ Thank you for your payment. Please allow a few minutes for the transaction to re
 [idea] Grading to include bars eg. Word count, accuracy, quality of language, delivery, feedback
 [idea] Pass/Fail and Score on Dashboard
 [TODO] Testing Instructions Video
+[TODO] recording-helpers -> Move Supabase creds to API
 
 [done] Filter for Languages on Dashboard
 [done] Time for recording on each question
