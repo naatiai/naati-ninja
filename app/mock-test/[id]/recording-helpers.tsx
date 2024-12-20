@@ -50,12 +50,12 @@ export const saveRecordingToStorage = async (
     //   .getPublicUrl(filePath);
 
     // Check if the public URL was successfully generated
-    if (!data.path) {
-      throw new Error(`Error getting relative path to URL: ${error}`);
-    }
+    // if (!data.path) {
+    //   throw new Error(`Error getting relative path to URL: ${error}`);
+    // }
 
     // console.log('Recording uploaded successfully:', data.path);
-    return data.path;
+    return filePath;
   } catch (error) {
     console.error('Error saving recording to Supabase:', error);
     throw error;
