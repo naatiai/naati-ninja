@@ -155,8 +155,12 @@ export default function RootLayout({
             {children}
 
             {/* VERCEL ANALYTICS */}
-            <SpeedInsights />
-            <Analytics />
+            {process.env.NODE_ENV === 'production' && (
+              <>
+                <SpeedInsights />
+                <Analytics />
+              </>
+            )}
           </body>
         </PHProvider>
       </html>

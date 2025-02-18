@@ -52,21 +52,6 @@ const HowToAI = () => {
           </div>
         ))}
       </div>
-      {/* <Link
-        href="/dashboard"
-        className="flex gap-3 text-white bg-[#099f9e] hover:bg-[#248484] sm:gap-[33px] px-6 sm:px-[37px] py-[1px] sm:py-[14px] items-center border rounded-[29px] border-solid border-primary"
-      >
-        <span className="text-[17px]  sm:text-[30px] leading-[34.5px] tracking-[-0.34px] sm:tracking-[-0.6px]">
-          Get started
-        </span>
-        <Image
-          src="/right-arrow.svg"
-          alt="Arrow"
-          width={31}
-          height={24}
-          className="w-4 sm:w-[31px] h-auto white"
-        />
-      </Link> */}
     </div>
   );
 };

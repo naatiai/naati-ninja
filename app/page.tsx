@@ -1,6 +1,7 @@
 import Footer from '@/components/home/Footer';
 import Header from '@/components/home/Header';
 import Hero from '@/components/home/Hero';
+import FreeMock from '@/components/home/FreeMock';
 import HowItWorks from '@/components/home/HowItWorks';
 import DocTypes from '@/components/home/DocTypes';
 import CTA from '@/components/home/CTA';
@@ -19,6 +20,7 @@ export default async function Home() {
     <main className="sm:p-7 sm:pb-0">
       <Header />
       <Hero />
+      <FreeMock />
       <HowItWorks />
       <DocTypes />
       <CTA />

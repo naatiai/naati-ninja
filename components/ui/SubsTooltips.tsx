@@ -95,9 +95,9 @@ const Tooltips: React.FC = () => {
                 <p className="text-sm font-bold text-white pb-1">
                   Mocks Used: {sub.mocks_used}
                 </p>
-                <p className="text-sm font-bold text-white pb-1">
+                {/* <p className="text-sm font-bold text-white pb-1">
                   Expires: {formatDate(sub.expires_on)}
-                </p>
+                </p> */}
               </div>
             )}
             {tooltip === 3 && !sub && (

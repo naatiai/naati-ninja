@@ -3,15 +3,6 @@ import Link from 'next/link';
 const Hero = () => {
   return (
     <div className="container pt-[188px] md:pt-[300px] pb-[215px] sm:pb-[290px] px-[22px] sm:px-0 mx-auto text-center">
-      {/* <a
-        href="https://dub.sh/together-ai"
-        target="_blank"
-        rel="noreferrer"
-        className="border rounded-2xl py-1 px-4 text-slate-600 transition duration-300 ease-in-out sm:text-base text-sm cursor-pointer hover:text-slate-700"
-      >
-        Powered by <span className="font-bold">OpenAI</span>and{' '}
-        <span className="font-bold">Mistral</span>
-      </a> */}
       <h2 className="text-center max-w-[867px] pb-5 sm:pb-7 text-[52px] sm:text-[100px] leading-[39.5px] tracking-[-1.04px] sm:leading-[75px] sm:tracking-[-2.74px] mx-auto sm:mt-12 mt-10">
         Master NAATI with AI-Powered Mock Tests
       </h2>

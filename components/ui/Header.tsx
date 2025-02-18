@@ -14,23 +14,24 @@ export default async function Header() {
         <nav className="flex justify-between mx-10">
           <Link
             href="/"
-            className="hover:text-slate-600 cursor-pointer flex items-center mr-2"
+            className="hover:text-slate-600 cursor-pointer flex items-center mr-1"
           >
             <Logo />
-            {/* <span className="text-2xl mb-2 font-medium">PDFtoChat</span> */}
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
             {isLoggedIn ? (
               <>
                 <div>
                   <Tooltips />
                 </div>
                 <Tooltip title="Manage Subscriptions">
-                  <button className="inline-flex items-center px-4 py-2 font-semibold leading-6 text-lg shadow rounded-md hover:border-1 hover:rounded-lg bg-gradient-to-r from-[#0b8d8c] to-[#f77a1b] hover:from-white hover:to-white hover:text-[#099f9e] transition ease-in-out duration-150 cursor-pointer text-white">
+                  <button className="inline-flex items-center px-2 py-2 font-semibold leading-6 text-lg shadow rounded-md hover:border-1 hover:rounded-lg bg-gradient-to-r from-[#0b8d8c] to-[#f77a1b] hover:from-white hover:to-white hover:text-[#099f9e] transition ease-in-out duration-150 cursor-pointer text-white">
                     <Link href="/subscription">Subscription</Link>
                   </button>
                 </Tooltip>
-                <Link href="/dashboard">Dashboard</Link>
+                <button className="inline-flex items-center px-2 py-2 font-semibold leading-6 text-lg shadow border-2 border-[#099f9e] text-[#099f9e] bg-white rounded-md transition ease-in-out duration-150 hover:border-black hover:text-black">
+                  <Link href="/dashboard">Dashboard</Link>
+                </button>
                 <UserButton afterSignOutUrl="/" />
               </>
             ) : (
@@ -46,12 +47,7 @@ export default async function Header() {
 function Logo() {
   return (
     <div className="">
-      <img
-        src="/white-bg-logo.png"
-        alt="Naati Ninja"
-        width={73}
-        height={73}
-      />
+      <img src="/white-bg-logo.png" alt="Naati Ninja" width={73} height={73} />
     </div>
   );
 }

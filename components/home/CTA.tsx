@@ -8,7 +8,7 @@ const CTA = () => {
       </h2>
       <p className="text-primary text-center text-[17px] sm:text-2xl font-light sm:leading-[34.5px] sm:tracking-[-0.6px] leading-[22px] tracking-[-0.34px] max-w-[728px] mx-auto pb-[18px] sm:pb-11">
         Currently supporting{'  '}
-        <span className="pb-[66px] sm:pb-[174px] text-center text-3xl sm:text-3xl text_bg leading-[72px] tracking-[-0.6px] sm:tracking-[-1.2px]">
+        <span className="underline pb-[66px] sm:pb-[174px] text-center text-3xl sm:text-3xl text_bg leading-[72px] tracking-[-0.6px] sm:tracking-[-1.2px]">
           Hindi, Tamil & Mandarin
         </span>
         {'  '}
