@@ -27,7 +27,7 @@ export async function POST(req: Request) {
         language: language, // Filter by the provided language
       },
       orderBy: {
-        created_on: 'desc',
+        created_on: 'asc',
       },
     });
 
