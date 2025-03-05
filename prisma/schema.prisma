@@ -90,3 +90,19 @@ model MockAnswers {
   @@index([id])
   @@map("mock_answers")
 }
+
+model Users {
+  id                String   @id @default(nanoid(7))
+  external_id       String   @unique
+  first_name        String?
+  last_name         String?
+  email             String   @unique
+  image_url         String?
+  profile_image_url String?
+  ip_address        String?
+  last_login        DateTime @default(now())
+  created_on        DateTime @default(now())
+
+  @@index([id])
+  @@map("users")
+}
