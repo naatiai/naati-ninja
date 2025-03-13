@@ -1,16 +1,7 @@
-import nodemailer from 'nodemailer';
+import fetch from 'node-fetch';
 
 export async function sendEmail(subject: string, body: string) {
-  // Create a transporter object using the default SMTP transport
-  let transporter = nodemailer.createTransport({
-    host: 'smtppro.zoho.com.au',
-    port: 587,
-    secure: false, // true for 465, false for other ports
-    auth: {
-      user: process.env.ZOHO_USER, // your Zoho email address
-      pass: process.env.ZOHO_PASS, // your Zoho email password
-    },
-  });
+  const POSTMARK_API_TOKEN = process.env.POSTMARK_API_TOKEN;
 
   // Fetch a random motivational quote from ZenQuotes
   let quote = '';
@@ -18,28 +9,43 @@ export async function sendEmail(subject: string, body: string) {
     const response = await fetch('https://zenquotes.io/api/random');
     const data = await response.json();
     if (data && data.length > 0) {
-      quote = data[0].q + ' - ' + data[0].a;
+      quote = `${data[0].q} - ${data[0].a}`;
     }
   } catch (error) {
     console.error('Error fetching quote:', error);
   }
 
-  // Set up email data with unicode symbols
-  let mailOptions = {
-    from: process.env.ZOHO_USER, // sender address
-    to: 'dhruv@oberoi.io', // list of receivers
-    subject: subject, // Subject line
-    text: `${quote}\n\n${body}`, // plain text body
-    html: `<p>Hi Dhruv,</p><p>${quote}</p><p>${body}</p>`, // html body
-  };
+  const emailBody = `${quote}\n\n${body}`;
+  const emailHtml = `<p>Hi Dhruv,</p><p>${quote}</p><p>${body}</p>`;
 
-  // Send mail with defined transport object
+  // Send email via Postmark API
   try {
-    let info = await transporter.sendMail(mailOptions);
-    console.log('Message sent: %s', info.messageId);
-    return { success: true, messageId: info.messageId };
+    const response = await fetch('https://api.postmarkapp.com/email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Postmark-Server-Token': POSTMARK_API_TOKEN || '',
+      },
+      body: JSON.stringify({
+        From: 'support@naatininja.com', // Update if needed
+        To: 'dhruv@oberoi.io', // Receiver email
+        Subject: subject,
+        TextBody: emailBody,
+        HtmlBody: emailHtml,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      console.log('Message sent:', result.MessageID);
+      return { success: true, messageId: result.MessageID };
+    } else {
+      console.error('Error sending email:', result);
+      return { success: false, error: result };
+    }
   } catch (error) {
-    console.error('Error sending email:', error);
-    return { success: false, error: error };
+    console.error('Request failed:', error);
+    return { success: false, error };
   }
 }
