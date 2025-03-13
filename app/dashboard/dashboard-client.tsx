@@ -11,6 +11,68 @@ export default function DashboardClient() {
   const [selectedLanguage, setSelectedLanguage] = useState('Hindi'); // Default to Hindi
   const languages = ['Hindi', 'Tamil', 'Mandarin'];
 
+  const [isError, setIsError] = useState<boolean>(false);
+  const [submissionStatus, setSubmissionStatus] = useState<boolean>(false);
+  const [showInput, setShowInput] = useState<boolean>(false);
+  const [customLanguage, setCustomLanguage] = useState<string>('');
+  const suggestions: string[] = [
+    'Arabic',
+    'Bangla',
+    'Bosnian',
+    'Bulgarian',
+    'Burmese',
+    'Cantonese',
+    'Croatian',
+    'Czech',
+    'Dari',
+    'Dutch',
+    'Dzongkha',
+    'Filipino',
+    'Finnish',
+    'French',
+    'German',
+    'Greek',
+    'Gujarati',
+    'Hazaragi',
+    'Hindi',
+    'Hungarian',
+    'Indonesian',
+    'Igbo',
+    'Italian',
+    'Japanese',
+    'Kannada',
+    'Khmer',
+    'Korean',
+    'Lao',
+    'Macedonian',
+    'Malay',
+    'Malayalam',
+    'Mandarin',
+    'Marathi',
+    'Nepali',
+    'Odia',
+    'Pashto',
+    'Persian',
+    'Polish',
+    'Portuguese',
+    'Punjabi',
+    'Romanian',
+    'Russian',
+    'Serbian',
+    'Sinhalese',
+    'Somali',
+    'Spanish',
+    'Swahili',
+    'Tamil',
+    'Telugu',
+    'Thai',
+    'Turkish',
+    'Ukrainian',
+    'Urdu',
+    'Vietnamese',
+    'Yoruba',
+  ];
+
   useEffect(() => {
     const fetchMocks = async () => {
       try {
@@ -64,6 +126,40 @@ export default function DashboardClient() {
     }
   };
 
+  const handleCustomLanguageSubmit = async (): Promise<void> => {
+    if (!customLanguage.trim()) return;
+
+    try {
+      const response = await fetch('/api/mocks/request_language', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ language: customLanguage }),
+      });
+
+      if (response.ok) {
+        console.log('Language request submitted:', customLanguage);
+        setSelectedLanguage(customLanguage);
+        setSubmissionStatus(true);
+        setIsError(false);
+      } else {
+        console.error('Error submitting language request');
+        setSubmissionStatus(true);
+        setIsError(true);
+      }
+    } catch (error) {
+      console.error('Request failed', error);
+      setSubmissionStatus(true);
+      setIsError(true);
+    } finally {
+      setShowInput(false);
+      setCustomLanguage('');
+
+      // Reset message after 3 seconds
+      setTimeout(() => {
+        setSubmissionStatus(false);
+      }, 3000);
+    }
+  };
   return (
     <>
       <main className="flex-grow py-8">
@@ -73,26 +169,76 @@ export default function DashboardClient() {
               Select a Mock Test from the List below to get started
             </p>
 
-            {/* Language Selection */}
-            <div className="flex justify-center space-x-4 mb-6">
-              {languages.map((lang) => (
-                <label
-                  key={lang}
-                  className="flex items-center space-x-2 p-2 rounded-lg hover:bg-blue-100 cursor-pointer"
+            <div className="flex flex-col items-center space-y-4 mb-6">
+              {/* Language Selection */}
+              <div className="flex justify-center space-x-4">
+                {languages.map((lang: string) => (
+                  <label
+                    key={lang}
+                    className="flex items-center space-x-2 p-2 rounded-lg hover:bg-blue-100 cursor-pointer"
+                  >
+                    <input
+                      type="radio"
+                      name="language"
+                      value={lang}
+                      checked={selectedLanguage === lang}
+                      onChange={() => setSelectedLanguage(lang)}
+                      className="form-radio text-blue-500 border-gray-300 focus:ring-2 focus:ring-blue-500"
+                    />
+                    <span className="text-sm font-medium text-gray-700">
+                      {lang}
+                    </span>
+                  </label>
+                ))}
+              </div>
+
+              {/* Can't find your language? */}
+              {!submissionStatus ? (
+                <button
+                  onClick={() => setShowInput((prev) => !prev)}
+                  className="mt-2 mb-2 underline text-blue-600 text-sm hover:underline"
                 >
+                  Can’t find your language?
+                </button>
+              ) : (
+                <p
+                  className={`mt-2 mb-2 text-sm ${
+                    isError ? 'text-red-600' : 'text-green-600'
+                  }`}
+                >
+                  {isError
+                    ? 'Error submitting request. Please contact us at support@naatininja.com'
+                    : 'We have received your request and will be in touch shortly!'}
+                </p>
+              )}
+
+              {/* Custom Language Input */}
+              {showInput && (
+                <div className="flex flex-col items-center space-y-2">
                   <input
-                    type="radio"
-                    name="language"
-                    value={lang}
-                    checked={selectedLanguage === lang}
-                    onChange={() => setSelectedLanguage(lang)}
-                    className="form-radio text-blue-500 border-gray-300 focus:ring-2 focus:ring-blue-500"
+                    type="text"
+                    list="language-suggestions"
+                    value={customLanguage}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setCustomLanguage(e.target.value)
+                    }
+                    placeholder="Request Language"
+                    className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
-                  <span className="text-sm font-medium text-gray-700">
-                    {lang}
-                  </span>
-                </label>
-              ))}
+                  <datalist id="language-suggestions">
+                    {suggestions.map((lang: string) => (
+                      <option key={lang} value={lang} />
+                    ))}
+                  </datalist>
+
+                  <button
+                    onClick={handleCustomLanguageSubmit}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                  >
+                    Submit
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
