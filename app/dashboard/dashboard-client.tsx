@@ -8,8 +8,26 @@ export default function DashboardClient() {
   const [mocksList, setMocksList] = useState<any[]>([]);
   const [sub, setSub] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState('Hindi'); // Default to Hindi
+  // const [selectedLanguage, setSelectedLanguage] = useState<string>('Hindi'); // Initial fallback, overridden by cookie
+
   const languages = ['Hindi', 'Tamil', 'Mandarin'];
+
+  const getInitialLanguage = () => {
+    if (typeof document !== 'undefined') {
+      const cookieLang = document.cookie
+        .split('; ')
+        .find((row) => row.startsWith('selectedLanguage='))
+        ?.split('=')[1];
+      if (cookieLang && languages.includes(cookieLang)) {
+        return cookieLang;
+      }
+    }
+    return 'Hindi';
+  };
+
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(
+    getInitialLanguage(),
+  );
 
   const [isError, setIsError] = useState<boolean>(false);
   const [submissionStatus, setSubmissionStatus] = useState<boolean>(false);
@@ -72,6 +90,10 @@ export default function DashboardClient() {
     'Vietnamese',
     'Yoruba',
   ];
+
+  useEffect(() => {
+    document.cookie = `selectedLanguage=${selectedLanguage}; path=/; max-age=31536000`; // 1 year
+  }, [selectedLanguage]);
 
   useEffect(() => {
     const fetchMocks = async () => {
