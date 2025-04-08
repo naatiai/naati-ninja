@@ -6,11 +6,11 @@ export async function POST(req: Request) {
   const { userId } = getAuth(req as any);
 
   try {
-    const { language } = await req.json();
+    const { language, email, first_name, last_name } = await req.json();
 
-    if (!language) {
+    if (!language || !email || !first_name || !last_name) {
       return NextResponse.json(
-        { error: 'Language is required' },
+        { error: 'Missing required fields' },
         { status: 400 },
       );
     }
@@ -19,6 +19,29 @@ export async function POST(req: Request) {
     const body = `A user has requested support for the language: ${language}`;
 
     await sendEmail(subject, body);
+
+    // Add subscriber to Sender.net
+    const subscriberData = {
+      email,
+      firstname: first_name,
+      lastname: last_name,
+      language : language,
+      groups: 'dy7E7w', // Group ID
+    };
+
+    const senderResponse = await fetch('https://api.sender.net/v2/subscribers', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.SENDER_API_KEY}`,
+      },
+      body: JSON.stringify(subscriberData),
+    });
+
+    if (!senderResponse.ok) {
+      const errorText = await senderResponse.text();
+      console.error('Failed to add subscriber to Sender:', errorText);
+    }
 
     return NextResponse.json(
       { message: 'Language request submitted successfully' },
