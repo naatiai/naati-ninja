@@ -3,6 +3,7 @@ import prisma from '@/utils/prisma';
 import { sendEmail } from '../../utils/zoho/mail';
 
 const BLOCKED_DOMAINS = ['adroitandco.in'];
+const BLOCKED_PREFIX_KEYWORDS = ['deol', 'indu', 'sam'];
 
 export async function POST(req: Request) {
   const now = new Date().toISOString();
@@ -10,7 +11,6 @@ export async function POST(req: Request) {
   try {
     const { type, data } = await req.json();
 
-    // Validate the webhook event type
     if (type !== 'user.created') {
       return NextResponse.json(
         { error: 'Invalid event type' },
@@ -28,9 +28,11 @@ export async function POST(req: Request) {
 
     console.log('Processing new user:', email);
 
-    // Check if the email belongs to a blocked domain
-    const emailDomain = email.split('@')[1]?.toLowerCase();
-    const isBlockedDomain = BLOCKED_DOMAINS.includes(emailDomain);
+    const [prefix, domain] = email.toLowerCase().split('@');
+    const isBlockedDomain = BLOCKED_DOMAINS.includes(domain);
+    const isBlockedPrefix = BLOCKED_PREFIX_KEYWORDS.some((keyword) =>
+      prefix.includes(keyword),
+    );
 
     // Prepare the subscriber data for Sender.net
     const subscriberData = {
@@ -64,10 +66,13 @@ export async function POST(req: Request) {
     const result = await senderResponse.json();
     console.log('Subscriber created successfully:', result);
 
-    // Only create/update subscription if the email domain is not blocked
-    if (!isBlockedDomain) {
+    // Skip subscription creation if domain or prefix is blocked
+    if (isBlockedDomain || isBlockedPrefix) {
+      console.log(
+        `Skipping subscription due to blocklist. Domain: ${domain}, Prefix: ${prefix}`,
+      );
+    } else {
       try {
-        console.log('Creating or updating subscription for user:', id);
         const existingSub = await prisma.subscriptions.findFirst({
           where: { user_id: id },
         });
@@ -91,15 +96,14 @@ export async function POST(req: Request) {
           console.log('Subscription created:', newSub.id);
         }
       } catch (dbError) {
-        const errorMessage = 'Database error during subscription creation/update';
-        console.error("Error Activating Sub:", errorMessage, dbError);
+        const errorMessage =
+          'Database error during subscription creation/update';
+        console.error('Error Activating Sub:', errorMessage, dbError);
         await sendEmail(
           `[ALERT] ${errorMessage} at ${now}`,
           `Error: ${JSON.stringify(dbError)}`,
         );
       }
-    } else {
-      console.log(`Skipping subscription for blocked domain: ${emailDomain}`);
     }
 
     return NextResponse.json(
