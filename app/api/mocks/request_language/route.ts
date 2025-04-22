@@ -42,6 +42,8 @@ export async function POST(req: Request) {
       groups: 'dy7E7w',
     };
 
+    console.log('Subscriber data:', subscriberData);
+
     const senderResponse = await fetch(
       'https://api.sender.net/v2/subscribers',
       {
