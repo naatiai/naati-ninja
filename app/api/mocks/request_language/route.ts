@@ -39,7 +39,7 @@ export async function POST(req: Request) {
       firstname: user.first_name || '',
       lastname: user.last_name || '',
       language: language,
-      groups: ['dy7E7w'],
+      groups: ['dy7E7w', process.env.SENDER_GROUP_ID],
     };
 
     // console.log('Subscriber data:', subscriberData);
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
       const errorText = await senderResponse.text();
       console.error('Failed to add subscriber to Sender:', errorText);
     }
-    console.log("Sender Response:", senderResponse);
+    console.log('Sender Response:', senderResponse);
 
     return NextResponse.json(
       { message: 'Language request submitted successfully' },
