@@ -39,10 +39,10 @@ export async function POST(req: Request) {
       firstname: user.first_name || '',
       lastname: user.last_name || '',
       language: language,
-      groups: 'dy7E7w',
+      groups: ['dy7E7w'],
     };
 
-    console.log('Subscriber data:', subscriberData);
+    // console.log('Subscriber data:', subscriberData);
 
     const senderResponse = await fetch(
       'https://api.sender.net/v2/subscribers',
