@@ -60,6 +60,7 @@ export async function POST(req: Request) {
       const errorText = await senderResponse.text();
       console.error('Failed to add subscriber to Sender:', errorText);
     }
+    console.log("Sender Response:", senderResponse);
 
     return NextResponse.json(
       { message: 'Language request submitted successfully' },
