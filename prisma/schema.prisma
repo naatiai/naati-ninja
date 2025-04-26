@@ -100,6 +100,7 @@ model Users {
   image_url         String?
   profile_image_url String?
   ip_address        String?
+  requestedLanguage String   @default("english")
   last_login        DateTime @default(now())
   created_on        DateTime @default(now())
 

@@ -34,6 +34,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    // Update requestedLanguage for the user
+    await prisma.users.update({
+      where: { external_id: userId },
+      data: { requestedLanguage: language },
+    });
+
     const subscriberData = {
       email: user.email,
       firstname: user.first_name || '',
