@@ -16,7 +16,7 @@ export async function createUserMock(mockId: string) {
     }
 
     const data = await response.json();
-    console.log('API Response:', data);
+    // console.log('API Response:', data);
 
     return data; // { status: 'results' | 'testing', userMock: UserMock }
   } catch (error) {

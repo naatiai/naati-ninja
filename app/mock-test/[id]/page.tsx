@@ -43,7 +43,7 @@ export default function Page({ params }: { params: { id: string } }) {
         } else if (response.status === 200) {
           setStatus('results');
           setUserMock(userMock);
-          console.log('Fetched userMock:', userMock); // Debugging log
+          // console.log('Fetched userMock:', userMock); // Debugging log
         } else {
           throw new Error('Unexpected status code');
         }

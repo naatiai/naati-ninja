@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
         priceId === 'price_1RJ2jYB0tTO2dqMYxWVUsfk5'
         // PRODUCTION and DEV Price IDs Resepectively
       ) {
-        mocks = 1; // 1 Mock Test for these prices
+        mocks = 0; // 0 Mock Test for these prices, but grade them
       } else {
         // If unknown priceId, fallback to amount
         mocks = amountToMocksMap[charge.amount];

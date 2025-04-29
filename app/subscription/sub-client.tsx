@@ -9,6 +9,8 @@ export default function SubClient() {
     amount: '5',
     value: '5',
   });
+  const [subscription, setSubscription] = useState<any>(null);
+  const [isOneDollarOfferLoading, setIsOneDollarOfferLoading] = useState(false);
 
   const priceInput: any = {
     0: '1 mock',
@@ -26,6 +28,7 @@ export default function SubClient() {
           2: 'price_1QVRBLB0tTO2dqMYudniKOa2',
           3: 'price_1QVRCAB0tTO2dqMYXKqt2KsJ',
           4: 'price_1QVRCdB0tTO2dqMY9wwOk0V9',
+          oneDollar: 'price_1RJ2jYB0tTO2dqMYxWVUsfk5',
         }
       : {
           0: 'price_1QRLrOB0tTO2dqMYzlTWyQo0',
@@ -33,6 +36,7 @@ export default function SubClient() {
           2: 'price_1QRLySB0tTO2dqMYXG2BmLA1',
           3: 'price_1QRLzEB0tTO2dqMYdqecclS9',
           4: 'price_1QRM07B0tTO2dqMYd0CiGMC5',
+          oneDollar: 'price_1RJ2AvB0tTO2dqMYP8SQ3DBj',
         };
 
   const priceOutput: any = {
@@ -52,6 +56,19 @@ export default function SubClient() {
     });
   }, [sliderValue]);
 
+  useEffect(() => {
+    const fetchSub = async () => {
+      try {
+        const res = await fetch('/api/subscriptions/get');
+        const data = await res.json();
+        setSubscription(data.subscription);
+      } catch (err) {
+        console.error('Failed to fetch subscription:', err);
+      }
+    };
+    fetchSub();
+  }, []);
+
   const handleChange = (e: any) => {
     setSliderValue(Number(e.target.value));
   };
@@ -69,27 +86,73 @@ export default function SubClient() {
         body: JSON.stringify({ priceId }),
       });
 
-      if (!response.ok) {
-        setLoading(false);
-        throw new Error('Failed to create a checkout session.');
-      }
+      if (!response.ok) throw new Error('Failed to create a checkout session.');
 
       const { url } = await response.json();
       if (url) {
-        // window.open(url, '_blank', 'noopener,noreferrer');
         window.open(url, 'noopener,noreferrer');
-        setLoading(false);
       }
-
-      setLoading(false);
     } catch (error) {
-      setLoading(false);
       console.error('Error initiating payment:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOneDollarPayment = async () => {
+    setIsOneDollarOfferLoading(true);
+    const priceId = priceIds.oneDollar;
+
+    try {
+      const response = await fetch('/api/subscriptions/create_session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ priceId }),
+      });
+
+      if (!response.ok) throw new Error('Failed to create a checkout session.');
+
+      const { url } = await response.json();
+      if (url) {
+        window.open(url, 'noopener,noreferrer');
+      }
+    } catch (error) {
+      console.error('Error initiating $1 grading payment:', error);
+    } finally {
+      setIsOneDollarOfferLoading(false);
     }
   };
 
   return (
     <div className="mx-auto flex flex-col gap-4 container mt-10">
+      {subscription &&
+        subscription.mocks_available === 0 &&
+        subscription.mocks_used === 1 &&
+        subscription.payment_required && (
+          <div className="bg-blue-100 border border-blue-400 text-blue-800 p-4 rounded-md mb-4 max-w-lg  mx-auto text-center">
+            <p className="font-medium">
+              Looks like you've taken a shot … but forgot to pay the bill 🍽️
+            </p>
+            <p className="font-medium">
+              Grade this mock for just <strong>$1 </strong>
+              and see how you really did!
+            </p>
+            <button
+              onClick={handleOneDollarPayment}
+              disabled={isOneDollarOfferLoading}
+              className={`mt-3 inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                isOneDollarOfferLoading
+                  ? 'bg-gray-300 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-blue-600 to-emerald-500 text-white hover:from-blue-800 hover:to-emerald-800'
+              }`}
+            >
+              {isOneDollarOfferLoading ? 'Processing...' : 'Get Results for $1'}
+            </button>
+          </div>
+        )}
+
       <div className="p-6 text-center">
         <h2 className="text-center text-3xl sm:text-[40px] font-normal leading-[72px] tracking-[-0.6px] sm:tracking-[-1.2px] bg-clip-text text_bg ">
           Pricing + Benefits
@@ -130,10 +193,10 @@ export default function SubClient() {
             </div>
             <div className="text-sm mt-2 mb-4 text-gray-400">
               <span>
-                {"( "}
+                {'( '}
                 {price.currency}
                 {price.value} / mock
-                {" )"}
+                {' )'}
               </span>
             </div>
             <ul className="mt-4 text-gray-600 m-3 flex flex-wrap justify-center">
