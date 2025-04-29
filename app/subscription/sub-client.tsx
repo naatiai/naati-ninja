@@ -133,10 +133,10 @@ export default function SubClient() {
         subscription.payment_required && (
           <div className="bg-blue-100 border border-blue-400 text-blue-800 p-4 rounded-md mb-4 max-w-lg  mx-auto text-center">
             <p className="font-medium">
-              Looks like you've taken a shot … but forgot to pay the bill 🍽️
+              We put in the hard yards to build these mocks — don’t ghost us now 👻
             </p>
             <p className="font-medium">
-              Grade this mock for just <strong>$1 </strong>
+              Grade your last mock for just <strong>$1 </strong>
               and see how you really did!
             </p>
             <button
