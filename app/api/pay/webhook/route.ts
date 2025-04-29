@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: errorMessage }, { status: 403 });
     }
 
-    // Handle only 'charge.updated' events
+    // Only handle 'charge.updated' events
     if (body.type !== 'charge.updated') {
       console.log('Unrecognized event type:', body.type);
       return NextResponse.json({}, { status: 202 });
@@ -93,7 +93,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
 
-    // Determine mocks based on amount
+    // Fetch priceId from charge if available
+    const priceId = charge.invoice?.lines?.data?.[0]?.price?.id || null;
+
+    // Setup mappings
     const amountToMocksMap: Record<number, number> = {
       500: 1,
       2000: 5,
@@ -101,23 +104,41 @@ export async function POST(req: NextRequest) {
       5000: 13,
       10100: 35,
     };
-    const mocks = amountToMocksMap[charge.amount];
+
+    let mocks: number | undefined;
+
+    if (priceId) {
+      // Handle by priceId
+      if (
+        priceId === 'price_1RJ2AvB0tTO2dqMYP8SQ3DBj' ||
+        priceId === 'price_1RJ2jYB0tTO2dqMYxWVUsfk5'
+        // PRODUCTION and DEV Price IDs Resepectively
+      ) {
+        mocks = 1; // 1 Mock Test for these prices
+      } else {
+        // If unknown priceId, fallback to amount
+        mocks = amountToMocksMap[charge.amount];
+      }
+    } else {
+      // No priceId, fallback to amount
+      mocks = amountToMocksMap[charge.amount];
+    }
 
     if (mocks === undefined) {
-      const errorMessage = `Invalid charge amount: ${charge.amount}`;
+      const errorMessage = `Invalid charge amount or unknown price: ${charge.amount}, priceId: ${priceId}`;
       console.log(errorMessage);
       await sendEmail(
         `[ALERT] ${errorMessage} at ${now}`,
         `Full Request Body: ${JSON.stringify(body)}`,
       );
       return NextResponse.json(
-        { error: 'Invalid charge amount' },
+        { error: 'Invalid charge amount or price' },
         { status: 400 },
       );
     }
 
+    // Update or create subscription
     try {
-      // Check if a subscription exists and update/create accordingly
       const existingSub = await prisma.subscriptions.findFirst({
         where: { user_id: userId },
       });
@@ -127,6 +148,7 @@ export async function POST(req: NextRequest) {
           where: { id: existingSub.id },
           data: {
             mocks_available: existingSub.mocks_available + mocks,
+            payment_required: false, // ensure no free mock
           },
         });
         console.log('Subscription updated:', updatedSub.id);
@@ -136,6 +158,7 @@ export async function POST(req: NextRequest) {
             user_id: userId,
             mocks_available: mocks,
             mocks_used: 0,
+            payment_required: false, // ensure no free mock
           },
         });
         console.log('Subscription created:', newSub.id);

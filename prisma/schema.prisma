@@ -8,12 +8,13 @@ datasource db {
 }
 
 model Subscriptions {
-  id              String    @id @default(nanoid(7))
-  user_id         String
-  mocks_available Int
-  mocks_used      Int
-  expires_on      DateTime? @db.Timestamp(6)
-  created_on      DateTime  @default(now()) @db.Timestamp(6)
+  id               String    @id @default(nanoid(7))
+  user_id          String
+  mocks_available  Int
+  mocks_used       Int
+  payment_required Boolean   @default(false)
+  expires_on       DateTime? @db.Timestamp(6)
+  created_on       DateTime  @default(now()) @db.Timestamp(6)
 
   @@index([id])
   @@map("subscriptions")
@@ -54,17 +55,18 @@ model MockQuestions {
 }
 
 model UserMocks {
-  id               String        @id @default(nanoid(7))
-  mock_id          String
-  user_id          String
-  attempts_allowed Int           @default(1)
-  attempts         Int           @default(0)
-  total_score      Int?
-  passed           Boolean?
-  expired          Boolean       @default(false)
-  created_on       DateTime      @default(now()) @db.Timestamp(6)
-  mock             Mocks         @relation(fields: [mock_id], references: [id])
-  MockAnswers      MockAnswers[]
+  id                           String        @id @default(nanoid(7))
+  mock_id                      String
+  user_id                      String
+  attempts_allowed             Int           @default(1)
+  attempts                     Int           @default(0)
+  total_score                  Int?
+  passed                       Boolean?
+  expired                      Boolean       @default(false)
+  needs_payment_before_grading Boolean       @default(false)
+  created_on                   DateTime      @default(now()) @db.Timestamp(6)
+  mock                         Mocks         @relation(fields: [mock_id], references: [id])
+  MockAnswers                  MockAnswers[]
 
   @@index([id])
   @@map("user_mocks")

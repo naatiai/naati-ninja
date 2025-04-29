@@ -82,6 +82,7 @@ export async function POST(req: Request) {
             where: { id: existingSub.id },
             data: {
               mocks_available: existingSub.mocks_available + 1,
+              payment_required: true, // free mock
             },
           });
           console.log('Subscription updated:', updatedSub.id);
@@ -91,6 +92,7 @@ export async function POST(req: Request) {
               user_id: id,
               mocks_available: 1,
               mocks_used: 0,
+              payment_required: true, // free mock
             },
           });
           console.log('Subscription created:', newSub.id);

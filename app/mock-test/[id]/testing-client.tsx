@@ -40,6 +40,7 @@ const TestingClient: React.FC<TestingClientProps> = ({
   const [userErrors, setUserErrors] = useState<string[]>([]); // State to store errors
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null); // For tracking audio element
+  const [paymentRequired, setPaymentRequired] = useState(false);
 
   const router = useRouter();
   const redirectToDashboard = () => {
@@ -328,12 +329,15 @@ const TestingClient: React.FC<TestingClientProps> = ({
         }),
       });
       setIsSavingAnswer(false); // Reset saving answer state
-
       if (res.status === 202) {
+        const data = await res.json();
         console.log('Test completed');
         setIsTestComplete(true);
+        setPaymentRequired(data.payment_required || false);
+        console.log('Payment required:', data.payment_required);
         return;
       }
+
       if (res.status === 200) {
         proceedToNextQuestion(userMockId);
       } else {
@@ -473,19 +477,74 @@ const TestingClient: React.FC<TestingClientProps> = ({
             </div>
           ) : (
             <div className="mt-10 mb-10 p-8 border-2 bg-white text-center shadow-lg rounded-lg overflow-hidden relative">
+              {/* Close Button */}
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="absolute top-3 left-3 text-gray-600 hover:text-gray-900 text-xl"
+              >
+                ✕
+              </button>
+
               <h2 className="text-center mt-4 text-3xl sm:text-[40px] font-semibold leading-[72px] tracking-[-0.6px] sm:tracking-[-1.2px] bg-clip-text pb-3 sm:pb-[30px]">
                 Test Completed
               </h2>
-              <p className="text-gray-700 font-normal text-2xl">
-                Your test results will be prepared in the next 2-4 hours. You
-                will be notified by email about accessing your results.
-              </p>
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="bg-blue-600 mt-3 w-full py-2 text-white rounded-lg shadow-lg duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-gray-500/50"
-              >
-                Back to Home
-              </button>
+
+              {paymentRequired ? (
+                <>
+                  <p className="text-gray-700 font-normal text-2xl mb-4">
+                    Pay $1 to unlock your results and grading.
+                  </p>
+                  <button
+                    onClick={async () => {
+                      try {
+                        const priceId =
+                          process.env.NODE_ENV === 'production'
+                            ? 'price_1RJ2AvB0tTO2dqMYP8SQ3DBj'
+                            : 'price_1RJ2jYB0tTO2dqMYxWVUsfk5'; // Pick price based on env
+
+                        const res = await fetch(
+                          '/api/subscriptions/create_session',
+                          {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ priceId }),
+                          },
+                        );
+
+                        if (!res.ok) {
+                          throw new Error('Failed to initiate payment');
+                        }
+
+                        const data = await res.json();
+                        if (data.url) {
+                          window.location.href = data.url;
+                        } else {
+                          alert('Unexpected error. Please contact support.');
+                        }
+                      } catch (err) {
+                        console.error('Stripe session error:', err);
+                        alert('Failed to start payment. Please try again.');
+                      }
+                    }}
+                    className="bg-gradient-to-r from-green-500 to-emerald-600 mt-3 w-full py-2 text-white text-lg font-semibold rounded-lg shadow-lg duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-emerald-400/60"
+                  >
+                    Unlock Results for $1
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="text-gray-700 font-normal text-2xl">
+                    Your test results will be prepared in the next 2-4 hours.
+                    You will be notified by email about accessing your results.
+                  </p>
+                  <button
+                    onClick={() => router.push('/dashboard')}
+                    className="bg-blue-600 mt-3 w-full py-2 text-white rounded-lg shadow-lg duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-gray-500/50"
+                  >
+                    Back to Home
+                  </button>
+                </>
+              )}
             </div>
           )}
         </>

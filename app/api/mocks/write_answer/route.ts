@@ -10,14 +10,13 @@ export async function POST(req: Request) {
   }
 
   try {
-    // Parse request body
     const { mock_question_id, audio_file_url, userMockId } = await req.json();
     console.log("User req for write answer:", userId, audio_file_url);
 
     if (!mock_question_id || !audio_file_url || !userMockId) {
       return NextResponse.json(
         { error: 'Invalid request parameters' },
-        { status: 200 },  // Always return 2xx if mock answer is written
+        { status: 200 },
       );
     }
 
@@ -33,16 +32,19 @@ export async function POST(req: Request) {
 
     console.log('UserID request to Write Answer:', userId, answer.id);
 
-    // Fetch userMock to get the associated mockId
+    // Fetch userMock to get mockId and payment info
     const userMock = await prisma.userMocks.findUnique({
       where: { id: userMockId },
-      select: { mock_id: true },
+      select: {
+        mock_id: true,
+        needs_payment_before_grading: true,
+      },
     });
 
     if (!userMock || !userMock.mock_id) {
       return NextResponse.json(
         { message: 'Answer saved, but mock ID could not be verified.' },
-        { status: 200 },  // Ensure 2xx response if answer saved
+        { status: 200 },
       );
     }
 
@@ -61,7 +63,7 @@ export async function POST(req: Request) {
     if (!mock) {
       return NextResponse.json(
         { message: 'Answer saved, but mock details not found.' },
-        { status: 200 },  // Ensure 2xx response if answer saved
+        { status: 200 },
       );
     }
 
@@ -69,13 +71,30 @@ export async function POST(req: Request) {
     const answeredQuestionsCount = mock.MockAnswers.length;
 
     if (answeredQuestionsCount + 1 >= mock.no_of_qa) {
-      // All questions answered, return 202 status
-      return NextResponse.json(
-        { message: 'Test completed successfully' },
-        { status: 202 },
-      );
+      // Test completed
+      if (userMock.needs_payment_before_grading) {
+        console.log('User completed free mock. Payment needed before grading.');
+
+        // Return a 202 status with payment link
+        return NextResponse.json(
+          { 
+            message: 'Test completed successfully. Payment required to view results.', 
+            payment_required: true, 
+          },
+          { status: 202 },
+        );
+      } else {
+        // Paid mock, no payment needed
+        return NextResponse.json(
+          { 
+            message: 'Test completed successfully. Grading will start.', 
+            payment_required: false 
+          },
+          { status: 202 },
+        );
+      }
     } else {
-      // Return 200 for successful answer submission
+      // Not all questions answered yet
       return NextResponse.json(
         { message: 'Answer saved successfully' },
         { status: 200 },
@@ -84,7 +103,6 @@ export async function POST(req: Request) {
   } catch (error: any) {
     console.error('Error saving answer:', error);
 
-    // Always ensure response is 2xx if the answer was saved
     return NextResponse.json(
       { error: `Internal server error: ${error.message}` },
       { status: 500 },

@@ -70,6 +70,14 @@ export async function POST(req: Request) {
       );
     }
 
+    // if needs_payment is true, user will be prompted to pay for free mock at the end of mock
+    let needsPayment = false;
+    if (subscription.payment_required) {
+      needsPayment = true;
+    } else {
+      needsPayment = false;
+    }
+
     // Proceed to create a new userMock
     const userMock = await prisma.userMocks.create({
       data: {
@@ -79,6 +87,7 @@ export async function POST(req: Request) {
         attempts: 0,
         passed: false,
         expired: false,
+        needs_payment_before_grading: needsPayment,
         created_on: new Date(),
       },
     });
