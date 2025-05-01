@@ -10,7 +10,7 @@ export default function DashboardClient() {
   const [loading, setLoading] = useState(false);
   // const [selectedLanguage, setSelectedLanguage] = useState<string>('Hindi'); // Initial fallback, overridden by cookie
 
-  const languages = ['Hindi', 'Tamil', 'Mandarin', 'Punjabi'] //, 'Sinhala', 'Nepali'];
+  const languages = ['Hindi', 'Tamil', 'Mandarin', 'Punjabi', 'Sinhala']; // 'Nepali'];
 
   const getInitialLanguage = () => {
     if (typeof document !== 'undefined') {
@@ -52,7 +52,6 @@ export default function DashboardClient() {
     'Greek',
     'Gujarati',
     'Hazaragi',
-    'Hindi',
     'Hungarian',
     'Indonesian',
     'Igbo',
@@ -73,15 +72,12 @@ export default function DashboardClient() {
     'Persian',
     'Polish',
     'Portuguese',
-    'Punjabi',
     'Romanian',
     'Russian',
     'Serbian',
-    'Sinhalese',
     'Somali',
     'Spanish',
     'Swahili',
-    'Tamil',
     'Telugu',
     'Thai',
     'Turkish',
