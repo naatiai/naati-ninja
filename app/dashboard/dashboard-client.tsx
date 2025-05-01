@@ -64,7 +64,6 @@ export default function DashboardClient() {
     'Macedonian',
     'Malay',
     'Malayalam',
-    'Mandarin',
     'Marathi',
     'Nepali',
     'Odia',
