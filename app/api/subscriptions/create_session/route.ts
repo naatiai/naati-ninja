@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
       customer_email: userEmail,
       currency: 'AUD',
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard`,
-      cancel_url: 'https://app.naatininja.com',
+      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard`,
       payment_intent_data: {
         metadata: {
           userId,

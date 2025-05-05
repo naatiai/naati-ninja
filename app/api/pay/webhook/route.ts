@@ -164,6 +164,13 @@ export async function POST(req: NextRequest) {
         });
         console.log('Subscription created:', newSub.id);
       }
+
+      // Update all user_mocks for this user to set needs_payment_before_grading to false
+      await prisma.userMocks.updateMany({
+        where: { user_id: userId },
+        data: { needs_payment_before_grading: false },
+      });
+
     } catch (dbError) {
       const errorMessage = 'Database error during subscription creation/update';
       console.error(errorMessage, dbError);
