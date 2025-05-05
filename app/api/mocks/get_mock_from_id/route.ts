@@ -41,6 +41,7 @@ export async function POST(req: Request) {
       select: {
         mock_id: true,
         id: true, // Fetch the userMock id for association
+        needs_payment_before_grading: true,
       },
     });
 
@@ -48,6 +49,7 @@ export async function POST(req: Request) {
     const result = {
       ...mock,
       userMockId: userMock ? userMock.id : null,
+      needs_payment_before_grading: userMock?.needs_payment_before_grading,
     };
 
     return NextResponse.json(result);

@@ -188,7 +188,7 @@ export default function DashboardClient() {
 
             <div className="flex flex-col items-center space-y-4 mb-6">
               {/* Language Selection */}
-              <div className="flex justify-center space-x-4">
+              <div className="flex flex-wrap justify-center gap-2 sm:space-x-4 sm:flex-nowrap">
                 {languages.map((lang: string) => (
                   <label
                     key={lang}

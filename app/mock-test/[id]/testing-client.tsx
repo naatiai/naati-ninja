@@ -120,7 +120,7 @@ const TestingClient: React.FC<TestingClientProps> = ({
       });
       if (res.status !== 201) {
         throw new Error(
-          'We could not activate your Mock. Please review your subscription or contact support.',
+          'Your mock could not be activated. Please review your subscription or contact support.',
         );
       }
       const { status, userMock } = await res.json();
@@ -132,7 +132,7 @@ const TestingClient: React.FC<TestingClientProps> = ({
     } catch (error: any) {
       setUserErrors((prev) => [
         ...prev,
-        'Error starting test: ' + error.message,
+        '' + error.message,
       ]);
     }
   };

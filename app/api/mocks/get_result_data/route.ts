@@ -41,7 +41,8 @@ export async function POST(req: Request) {
         },
       },
       orderBy: {
-        created_on: 'asc', // Order questions by creation date
+        order: 'asc', // Order questions by their order field
+        // created_on: 'asc', // Order questions by creation date
       },
     });
 

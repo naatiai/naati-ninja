@@ -98,6 +98,7 @@ export async function POST(req: NextRequest) {
 
     // Setup mappings
     const amountToMocksMap: Record<number, number> = {
+      100: 0,
       500: 1,
       2000: 5,
       4000: 10,
