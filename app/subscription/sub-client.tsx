@@ -1,4 +1,15 @@
 import { useEffect, useState } from 'react';
+import React from 'react';
+
+interface Subscription {
+  id: string;
+  user_id: string;
+  mocks_available: number | null;
+  mocks_used: number | null;
+  payment_required: boolean;
+  expires_on: string | null;
+  created_on: string;
+}
 
 export default function SubClient() {
   const [sliderValue, setSliderValue] = useState(0);
@@ -9,7 +20,7 @@ export default function SubClient() {
     amount: '5',
     value: '5',
   });
-  const [subscription, setSubscription] = useState<any>(null);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [isOneDollarOfferLoading, setIsOneDollarOfferLoading] = useState(false);
 
   const priceInput: any = {
@@ -125,12 +136,32 @@ export default function SubClient() {
     }
   };
 
+  // Modal for subscription details
+  const SubscriptionModal = ({ subscription }: { subscription: Subscription }) => (
+    <div className="fixed inset-0 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-lg p-6 w-80 border border-gray-200">
+        <h3 className="text-lg font-semibold text-blue-700 mb-2">Your Subscription</h3>
+        <div className="flex flex-col gap-2 text-gray-700">
+          <div className="flex justify-between">
+            <span className="font-medium">Mocks Available:</span>
+            <span className="font-bold text-green-600">{subscription.mocks_available ?? 0}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="font-medium">Mocks Used:</span>
+            <span className="font-bold text-amber-600">{subscription.mocks_used ?? 0}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="mx-auto flex flex-col gap-4 container mt-10">
+      {/* Show $1 offer OR subscription details, not both */}
       {subscription &&
         subscription.mocks_available === 0 &&
         subscription.mocks_used === 1 &&
-        subscription.payment_required && (
+        subscription.payment_required ? (
           <div className="bg-blue-100 border border-blue-400 text-blue-800 p-4 rounded-md mb-4 max-w-lg  mx-auto text-center">
             <p className="font-medium">
               We put in the hard yards to build these mocks — don’t ghost us now 👻
@@ -150,6 +181,23 @@ export default function SubClient() {
             >
               {isOneDollarOfferLoading ? 'Processing...' : 'Get Results for $1'}
             </button>
+          </div>
+        ) :
+        subscription && (
+          <div className="flex justify-center mb-4">
+            <div className="bg-gradient-to-r from-blue-100 to-emerald-100 border border-blue-200 rounded-lg shadow p-4 w-full max-w-xs">
+              <div className="flex flex-col items-center">
+                <span className="text-lg font-semibold text-blue-700 mb-2">Subscription Details</span>
+                <div className="flex flex-row justify-between w-full mb-1">
+                  <span className="text-gray-700">Mocks Available:</span>
+                  <span className="font-bold text-green-600">{subscription.mocks_available ?? 0}</span>
+                </div>
+                <div className="flex flex-row justify-between w-full">
+                  <span className="text-gray-700">Mocks Used:</span>
+                  <span className="font-bold text-amber-600">{subscription.mocks_used ?? 0}</span>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
