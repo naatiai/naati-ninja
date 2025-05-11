@@ -16,10 +16,10 @@ export async function POST(req: Request) {
   try {
     const { language } = await req.json();
 
-    const subject = `New Language Request by ${userId}`;
-    const body = `A user has requested support for the language: ${language}`;
+    // const subject = `New Language Request by ${userId}`;
+    // const body = `A user has requested support for the language: ${language}`;
 
-    await sendEmail(subject, body);
+    // await sendEmail(subject, body);
 
     const user = await prisma.users.findUnique({
       where: { external_id: userId },
