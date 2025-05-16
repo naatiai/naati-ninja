@@ -38,6 +38,7 @@ const Footer = () => {
                   width={27}
                   height={27}
                 />
+                Email Support
               </Link>
             </Tooltip>
           </div>
