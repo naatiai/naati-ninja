@@ -29,7 +29,7 @@ const Footer = () => {
             <Tooltip title="Email Support">
               <Link
                 href="mailto:support@naatininja.com"
-                className="group"
+                className="group flex items-center gap-2"
                 aria-label="Contact Suppoer"
               >
                 <Image
