@@ -168,6 +168,13 @@ export default function ResultsClient({
         </div>
       )}
 
+      {/* Unmarked alert */}
+      {userMock.total_score === null && (
+        <div className="mb-6 bg-yellow-100 border border-yellow-400 text-yellow-800 p-4 rounded-md max-w-lg mx-auto text-center">
+          Grading is typically instant but can sometimes take between 2-4 hours for some tests. If your result is still unmarked after this period, please contact support@naatininja.com
+        </div>
+      )}
+
       {/* Mock Title and Status */}
       <div className="flex justify-between items-center mb-6">
         {mockData && (
@@ -177,13 +184,15 @@ export default function ResultsClient({
           </div>
         )}
         <div className="text-right">
-          <span
-            className={`inline-block px-3 py-1 rounded-full text-white ${
-              userMock.passed ? 'bg-green-500' : 'bg-red-500'
-            }`}
-          >
-            {userMock.passed ? 'Passed' : 'Failed'}
-          </span>
+          {userMock.total_score !== null && (
+            <span
+              className={`inline-block px-3 py-1 rounded-full text-white ${
+                userMock.passed ? 'bg-green-500' : 'bg-red-500'
+              }`}
+            >
+              {userMock.passed ? 'Passed' : 'Failed'}
+            </span>
+          )}
           <span className="mt-2 inline-block ml-3 px-3 py-1 rounded-full text-white bg-blue-500">
             {userMock.total_score
               ? `Score: ${userMock.total_score}%`
