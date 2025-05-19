@@ -130,10 +130,7 @@ const TestingClient: React.FC<TestingClientProps> = ({
       setShowInstructions(false);
       fetchNextQuestion(true, userMock.id); // True indicates first time fetching question
     } catch (error: any) {
-      setUserErrors((prev) => [
-        ...prev,
-        '' + error.message,
-      ]);
+      setUserErrors((prev) => [...prev, '' + error.message]);
     }
   };
 
@@ -534,8 +531,9 @@ const TestingClient: React.FC<TestingClientProps> = ({
               ) : (
                 <>
                   <p className="text-gray-700 font-normal text-2xl">
-                    Your test results will be prepared in the next 2-4 hours.
-                    You will be notified by email about accessing your results.
+                    Grading is typically instant but can sometimes take between
+                    2-4 hours for some tests. You will be notified by email
+                    about accessing your results.
                   </p>
                   <button
                     onClick={() => router.push('/dashboard')}
